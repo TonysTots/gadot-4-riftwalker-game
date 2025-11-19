@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://cp4b71u5pgxwm"]
+
+[ext_resource type="PackedScene" uid="uid://c5gs0x7d3r0w1" path="res://Scenes/Battle.tscn" id="1_jjgbg"]
+
+[node name="RiftWalker" type="Node2D"]
+
+[node name="ParallaxBG1" parent="." instance=ExtResource("1_jjgbg")]
+position = Vector2(23, -2)

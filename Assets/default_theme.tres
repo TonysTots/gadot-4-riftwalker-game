@@ -1,0 +1,22 @@
+[gd_resource type="Theme" load_steps=7 format=3 uid="uid://dttsyqrquu8ar"]
+
+[ext_resource type="FontFile" uid="uid://egp6dtkw755a" path="res://Assets/PressStart2P-vaV7.ttf" id="1_j6874"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sx5ht"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mjrr0"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_b5kin"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qed2q"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_83sgi"]
+
+[resource]
+default_font = ExtResource("1_j6874")
+default_font_size = 8
+Button/styles/disabled = SubResource("StyleBoxEmpty_sx5ht")
+Button/styles/focus = SubResource("StyleBoxEmpty_mjrr0")
+Button/styles/hover = SubResource("StyleBoxEmpty_b5kin")
+Button/styles/normal = SubResource("StyleBoxEmpty_qed2q")
+Button/styles/pressed = SubResource("StyleBoxEmpty_83sgi")

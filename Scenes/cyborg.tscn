@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://opd7oqwvou8b"]
+
+[ext_resource type="Texture2D" uid="uid://tliku2ymxlfw" path="res://Assets/Characters/3 Hands/1 Biker/1.png" id="1_n78mk"]
+
+[node name="Cyborg" type="TextureButton"]
+offset_left = 252.0
+offset_top = 19.0
+offset_right = 284.0
+offset_bottom = 51.0
+texture_normal = ExtResource("1_n78mk")
