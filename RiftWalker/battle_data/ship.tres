@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BattleData" load_steps=10 format=3 uid="uid://cewt5uecswbif"]
+
+[ext_resource type="Script" uid="uid://7vjy7gmbq5el" path="res://base_resource_classes/ally_stats.gd" id="1_h6g3d"]
+[ext_resource type="Resource" uid="uid://cnxgagq22hko" path="res://stats/ally_stats/mitchell.tres" id="2_ew347"]
+[ext_resource type="Resource" uid="uid://bbwdd2xv1bf1i" path="res://stats/ally_stats/blake.tres" id="3_sdmlo"]
+[ext_resource type="Resource" uid="uid://cghwgxhnra2og" path="res://stats/ally_stats/michael.tres" id="4_mhnne"]
+[ext_resource type="Texture2D" uid="uid://c5m7hw3lgowhb" path="res://assets/battle_backgrounds/ship.png" id="5_h6g3d"]
+[ext_resource type="AudioStream" uid="uid://d237emy0o3efv" path="res://assets/music/SpaceBattle.mp3" id="6_eiplh"]
+[ext_resource type="Script" uid="uid://1v0m2fkfpkk7" path="res://base_resource_classes/enemy_stats.gd" id="7_wjhv4"]
+[ext_resource type="Resource" uid="uid://u2ab0mjen2j5" path="res://stats/enemy_stats/space_knight.tres" id="8_ew347"]
+[ext_resource type="Script" uid="uid://cxvfwu2kf0laj" path="res://base_resource_classes/battle_data.gd" id="9_tk4os"]
+
+[resource]
+script = ExtResource("9_tk4os")
+battleName = "Ship Battle"
+background = ExtResource("5_h6g3d")
+scale = Vector2(0.3, 0.3)
+battleMusic = ExtResource("6_eiplh")
+allies = Array[ExtResource("1_h6g3d")]([ExtResource("2_ew347"), ExtResource("3_sdmlo"), ExtResource("4_mhnne")])
+enemies = Array[ExtResource("7_wjhv4")]([ExtResource("8_ew347"), ExtResource("8_ew347")])

@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://df2sj4mwc2nnh"]
+
+[ext_resource type="PackedScene" uid="uid://skjtio160esb" path="res://abstract_battler/battler.tscn" id="1_a2tly"]
+[ext_resource type="Script" uid="uid://dn5bxsnnijsaw" path="res://enemy_battler/enemy_battler.gd" id="2_8y5u6"]
+
+[node name="EnemyBattler" groups=["enemies"] instance=ExtResource("1_a2tly")]
+script = ExtResource("2_8y5u6")
+stats = null
+
+[node name="StatusEffectSprite" parent="." index="1"]
+position = Vector2(51, 44)
+
+[node name="HealthLabel" parent="VBoxContainer" index="0"]
+visible = false
+
+[node name="MagicPointsLabel" parent="VBoxContainer" index="1"]
+visible = false
+
+[node name="NameLabel" parent="VBoxContainer" index="2"]
+theme_override_constants/outline_size = 4
+theme_override_constants/shadow_outline_size = 6

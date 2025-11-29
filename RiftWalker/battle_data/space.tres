@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BattleData" load_steps=10 format=3 uid="uid://bcar7s7lyeinu"]
+
+[ext_resource type="Script" uid="uid://7vjy7gmbq5el" path="res://base_resource_classes/ally_stats.gd" id="1_sip1x"]
+[ext_resource type="Resource" uid="uid://cnxgagq22hko" path="res://stats/ally_stats/mitchell.tres" id="2_00q0m"]
+[ext_resource type="Resource" uid="uid://bbwdd2xv1bf1i" path="res://stats/ally_stats/blake.tres" id="3_8uyni"]
+[ext_resource type="Resource" uid="uid://cghwgxhnra2og" path="res://stats/ally_stats/michael.tres" id="4_rey7l"]
+[ext_resource type="Texture2D" uid="uid://bhnev71mmyion" path="res://assets/battle_backgrounds/space.jpg" id="5_rtysf"]
+[ext_resource type="AudioStream" uid="uid://d237emy0o3efv" path="res://assets/music/SpaceBattle.mp3" id="6_f5nn5"]
+[ext_resource type="Script" uid="uid://1v0m2fkfpkk7" path="res://base_resource_classes/enemy_stats.gd" id="7_7ueqq"]
+[ext_resource type="Resource" uid="uid://cc6dqtmkwgtre" path="res://stats/enemy_stats/eye.tres" id="8_sip1x"]
+[ext_resource type="Script" uid="uid://cxvfwu2kf0laj" path="res://base_resource_classes/battle_data.gd" id="9_xenew"]
+
+[resource]
+script = ExtResource("9_xenew")
+battleName = "Space Battle"
+background = ExtResource("5_rtysf")
+scale = Vector2(0.35, 0.35)
+battleMusic = ExtResource("6_f5nn5")
+allies = Array[ExtResource("1_sip1x")]([ExtResource("2_00q0m"), ExtResource("3_8uyni"), ExtResource("4_rey7l")])
+enemies = Array[ExtResource("7_7ueqq")]([ExtResource("8_sip1x"), ExtResource("8_sip1x"), ExtResource("8_sip1x")])

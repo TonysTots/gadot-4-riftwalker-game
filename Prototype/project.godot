@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="RiftwalkerGame"
+config/name="RiftwalkerProto"
 run/main_scene="uid://c5gs0x7d3r0w1"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"

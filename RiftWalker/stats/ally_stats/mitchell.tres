@@ -1,0 +1,293 @@
+[gd_resource type="Resource" script_class="AllyStats" load_steps=61 format=3 uid="uid://cnxgagq22hko"]
+
+[ext_resource type="Script" uid="uid://yldk75fg86g1" path="res://base_resource_classes/ally_attack.gd" id="1_a6w0b"]
+[ext_resource type="Resource" uid="uid://ijbevejdtbt5" path="res://actions/ally_actions/attack_actions/slash.tres" id="2_bcpgd"]
+[ext_resource type="Resource" uid="uid://u3phnepj4plg" path="res://actions/ally_actions/attack_actions/whip.tres" id="3_fgifm"]
+[ext_resource type="Resource" uid="uid://dtv4tf41ul5p" path="res://actions/ally_actions/defend_actions/defend.tres" id="4_k7e3o"]
+[ext_resource type="Script" uid="uid://bj4dcxi3sb33c" path="res://base_resource_classes/item.gd" id="5_gix8k"]
+[ext_resource type="Resource" uid="uid://d4h702fl6pwye" path="res://actions/ally_actions/item_actions/golden_apple.tres" id="6_5h10y"]
+[ext_resource type="Resource" uid="uid://baxl4pvy5tkf2" path="res://actions/ally_actions/item_actions/fairy_in_bottle.tres" id="7_aoa10"]
+[ext_resource type="Script" uid="uid://bkvsdp5gixgqe" path="res://base_resource_classes/spell.gd" id="8_g3rw4"]
+[ext_resource type="Resource" uid="uid://fq77qto0fv7s" path="res://actions/ally_actions/magic_actions/offensive_magic_actions/burn_spell.tres" id="9_7t1yr"]
+[ext_resource type="Script" uid="uid://7vjy7gmbq5el" path="res://base_resource_classes/ally_stats.gd" id="10_4ndj2"]
+[ext_resource type="Texture2D" uid="uid://baelw7geod3vl" path="res://assets/sprites/mitchell_sprites/attack/1_atk_1.png" id="11_a6w0b"]
+[ext_resource type="Texture2D" uid="uid://xnjgy0xw27gw" path="res://assets/sprites/mitchell_sprites/attack/1_atk_2.png" id="12_bcpgd"]
+[ext_resource type="Texture2D" uid="uid://pt8cfjl4cu5w" path="res://assets/sprites/mitchell_sprites/attack/1_atk_3.png" id="13_fgifm"]
+[ext_resource type="Texture2D" uid="uid://ogdhabxmwynq" path="res://assets/sprites/mitchell_sprites/attack/1_atk_4.png" id="14_k7e3o"]
+[ext_resource type="Texture2D" uid="uid://54xas82epc0p" path="res://assets/sprites/mitchell_sprites/attack/1_atk_5.png" id="15_gix8k"]
+[ext_resource type="Texture2D" uid="uid://b1pkxxljop62e" path="res://assets/sprites/mitchell_sprites/attack/1_atk_6.png" id="16_5h10y"]
+[ext_resource type="Texture2D" uid="uid://cjo7xed38gjup" path="res://assets/sprites/mitchell_sprites/attack/1_atk_7.png" id="17_aoa10"]
+[ext_resource type="Texture2D" uid="uid://mqaf1n6r08cn" path="res://assets/sprites/mitchell_sprites/attack/1_atk_8.png" id="18_g3rw4"]
+[ext_resource type="Texture2D" uid="uid://dqslgme62w8f3" path="res://assets/sprites/mitchell_sprites/attack/1_atk_9.png" id="19_7t1yr"]
+[ext_resource type="Texture2D" uid="uid://lbn2vtomode1" path="res://assets/sprites/mitchell_sprites/attack/1_atk_10.png" id="20_4ndj2"]
+[ext_resource type="Texture2D" uid="uid://dggiwb3l6q0jl" path="res://assets/sprites/mitchell_sprites/attack/1_atk_11.png" id="21_8g7vs"]
+[ext_resource type="Texture2D" uid="uid://fk4dpl3s0abw" path="res://assets/sprites/mitchell_sprites/dead/death_1.png" id="22_4wm1y"]
+[ext_resource type="Texture2D" uid="uid://6mrwpfpm0gqh" path="res://assets/sprites/mitchell_sprites/dead/death_2.png" id="23_pelvt"]
+[ext_resource type="Texture2D" uid="uid://p1ogdrx40j7t" path="res://assets/sprites/mitchell_sprites/dead/death_3.png" id="24_bmhdo"]
+[ext_resource type="Texture2D" uid="uid://bvqxcuvkgc8h8" path="res://assets/sprites/mitchell_sprites/dead/death_4.png" id="25_k03k3"]
+[ext_resource type="Texture2D" uid="uid://dbmne8uowfgal" path="res://assets/sprites/mitchell_sprites/dead/death_5.png" id="26_yaork"]
+[ext_resource type="Texture2D" uid="uid://sbqvrcbuvdsc" path="res://assets/sprites/mitchell_sprites/dead/death_6.png" id="27_j4m3v"]
+[ext_resource type="Texture2D" uid="uid://drfm6tuh8y7fo" path="res://assets/sprites/mitchell_sprites/dead/death_7.png" id="28_wiado"]
+[ext_resource type="Texture2D" uid="uid://dbf11qkrayfag" path="res://assets/sprites/mitchell_sprites/dead/death_8.png" id="29_dby8u"]
+[ext_resource type="Texture2D" uid="uid://b31rkw37at6sm" path="res://assets/sprites/mitchell_sprites/dead/death_9.png" id="30_fftby"]
+[ext_resource type="Texture2D" uid="uid://cep7n5y0iqtpt" path="res://assets/sprites/mitchell_sprites/dead/death_10.png" id="31_o33by"]
+[ext_resource type="Texture2D" uid="uid://c83m64pm12dlg" path="res://assets/sprites/mitchell_sprites/dead/death_11.png" id="32_tppno"]
+[ext_resource type="Texture2D" uid="uid://xm5ud3tsat1s" path="res://assets/sprites/mitchell_sprites/dead/death_12.png" id="33_ki2jy"]
+[ext_resource type="Texture2D" uid="uid://btio61od6wf16" path="res://assets/sprites/mitchell_sprites/dead/death_13.png" id="34_6at72"]
+[ext_resource type="Texture2D" uid="uid://df1ox6pdy5fdq" path="res://assets/sprites/mitchell_sprites/defend/defend_1.png" id="35_sutnl"]
+[ext_resource type="Texture2D" uid="uid://bfgpq1mrtrb4y" path="res://assets/sprites/mitchell_sprites/defend/defend_2.png" id="36_r7u3n"]
+[ext_resource type="Texture2D" uid="uid://x14c4p1vkx2j" path="res://assets/sprites/mitchell_sprites/defend/defend_3.png" id="37_cibvb"]
+[ext_resource type="Texture2D" uid="uid://bffy66yu2lfx2" path="res://assets/sprites/mitchell_sprites/defend/defend_4.png" id="38_uex58"]
+[ext_resource type="Texture2D" uid="uid://dqgv2hp0u1oqg" path="res://assets/sprites/mitchell_sprites/defend/defend_5.png" id="39_ithlf"]
+[ext_resource type="Texture2D" uid="uid://q5pa5sxp3huv" path="res://assets/sprites/mitchell_sprites/defend/defend_6.png" id="40_0ghgk"]
+[ext_resource type="Texture2D" uid="uid://cvfgtuuq43kj2" path="res://assets/sprites/mitchell_sprites/defend/defend_7.png" id="41_b1yf3"]
+[ext_resource type="Texture2D" uid="uid://dvjbbw6vsn5xo" path="res://assets/sprites/mitchell_sprites/defend/defend_8.png" id="42_dmrrw"]
+[ext_resource type="Texture2D" uid="uid://cv0pyrm44prjp" path="res://assets/sprites/mitchell_sprites/defend/defend_9.png" id="43_3i8cv"]
+[ext_resource type="Texture2D" uid="uid://eg7t0kxakx2c" path="res://assets/sprites/mitchell_sprites/defend/defend_10.png" id="44_ing7r"]
+[ext_resource type="Texture2D" uid="uid://babweapjdjaqa" path="res://assets/sprites/mitchell_sprites/hurt/take_hit_1.png" id="45_ddaxp"]
+[ext_resource type="Texture2D" uid="uid://bgv3akg56wg1e" path="res://assets/sprites/mitchell_sprites/hurt/take_hit_2.png" id="46_4io8x"]
+[ext_resource type="Texture2D" uid="uid://bqubsqp58jr4u" path="res://assets/sprites/mitchell_sprites/hurt/take_hit_3.png" id="47_gxdvo"]
+[ext_resource type="Texture2D" uid="uid://ch6sv4ybmcy7j" path="res://assets/sprites/mitchell_sprites/hurt/take_hit_4.png" id="48_27dfk"]
+[ext_resource type="Texture2D" uid="uid://cj8qwd0ob7itl" path="res://assets/sprites/mitchell_sprites/hurt/take_hit_5.png" id="49_fd6ii"]
+[ext_resource type="Texture2D" uid="uid://dqb51vnqy60fn" path="res://assets/sprites/mitchell_sprites/hurt/take_hit_6.png" id="50_ylpws"]
+[ext_resource type="Texture2D" uid="uid://ck2hmkyqk04wr" path="res://assets/sprites/mitchell_sprites/01_idle/idle_1.png" id="51_pphjp"]
+[ext_resource type="Texture2D" uid="uid://ciyft16ojbtqh" path="res://assets/sprites/mitchell_sprites/01_idle/idle_2.png" id="52_shb5o"]
+[ext_resource type="Texture2D" uid="uid://caqrdqjn4hqwa" path="res://assets/sprites/mitchell_sprites/01_idle/idle_3.png" id="53_6a5do"]
+[ext_resource type="Texture2D" uid="uid://b66ml346qcd02" path="res://assets/sprites/mitchell_sprites/01_idle/idle_4.png" id="54_w5j1u"]
+[ext_resource type="Texture2D" uid="uid://datxoaf76pxwg" path="res://assets/sprites/mitchell_sprites/01_idle/idle_5.png" id="55_bkv7m"]
+[ext_resource type="Texture2D" uid="uid://cl05x0kfls70x" path="res://assets/sprites/mitchell_sprites/01_idle/idle_6.png" id="56_r38am"]
+[ext_resource type="Texture2D" uid="uid://bt342sx3c1pql" path="res://assets/sprites/mitchell_sprites/01_idle/idle_7.png" id="57_6gqe3"]
+[ext_resource type="Texture2D" uid="uid://c5ell0xoflwu5" path="res://assets/sprites/mitchell_sprites/01_idle/idle_8.png" id="58_0juoa"]
+[ext_resource type="Theme" uid="uid://7oinam54er24" path="res://UI/mitchell_theme.tres" id="59_d8xm6"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jumq5"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("11_a6w0b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_bcpgd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_fgifm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_k7e3o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_gix8k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_5h10y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_aoa10")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_g3rw4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_7t1yr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_4ndj2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_8g7vs")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 11.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("22_4wm1y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_pelvt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_bmhdo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_k03k3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_yaork")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_j4m3v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_wiado")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_dby8u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_fftby")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_o33by")
+}, {
+"duration": 1.0,
+"texture": ExtResource("32_tppno")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_ki2jy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_6at72")
+}],
+"loop": false,
+"name": &"defeated",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("35_sutnl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_r7u3n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_cibvb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_uex58")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_ithlf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_0ghgk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_b1yf3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("42_dmrrw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("43_3i8cv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("44_ing7r")
+}],
+"loop": false,
+"name": &"defend",
+"speed": 8.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"heal_magic",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("45_ddaxp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("46_4io8x")
+}, {
+"duration": 1.0,
+"texture": ExtResource("47_gxdvo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_27dfk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_fd6ii")
+}, {
+"duration": 1.0,
+"texture": ExtResource("50_ylpws")
+}],
+"loop": false,
+"name": &"hurt",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("51_pphjp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("52_shb5o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("53_6a5do")
+}, {
+"duration": 1.0,
+"texture": ExtResource("54_w5j1u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("55_bkv7m")
+}, {
+"duration": 1.0,
+"texture": ExtResource("56_r38am")
+}, {
+"duration": 1.0,
+"texture": ExtResource("57_6gqe3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("58_0juoa")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("11_a6w0b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_bcpgd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_fgifm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_k7e3o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_gix8k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_5h10y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_aoa10")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_g3rw4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_7t1yr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_4ndj2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_8g7vs")
+}],
+"loop": false,
+"name": &"offensive_magic",
+"speed": 11.0
+}]
+
+[resource]
+script = ExtResource("10_4ndj2")
+name = "Mitchell"
+ui_theme = ExtResource("59_d8xm6")
+texture_scale = 2.0
+attackActions = Array[ExtResource("1_a6w0b")]([ExtResource("2_bcpgd"), ExtResource("3_fgifm")])
+defendAction = ExtResource("4_k7e3o")
+magicActions = Array[ExtResource("8_g3rw4")]([ExtResource("9_7t1yr")])
+items = Array[ExtResource("5_gix8k")]([ExtResource("6_5h10y"), ExtResource("6_5h10y"), ExtResource("7_aoa10")])
+health = 160
+strength = 80
+defense = 20
+magicStrength = 50
+speed = 30
+defeatedText = "Mitchell fell to the floor with a big thump !"
+spriteFrames = SubResource("SpriteFrames_jumq5")
