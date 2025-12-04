@@ -1,6 +1,5 @@
 @tool
 ## Contains all [AllyBattler] data.
-
 class_name AllyStats extends Resource
 
 @export_category("Main traits")
@@ -23,19 +22,56 @@ class_name AllyStats extends Resource
 ## The items in the battler's inventory.
 @export var items: Array[Item]
 
-@export_category("Numbers")
-## Battler is defeated when it reaches zero.
-@export_range(1, 99999999) var health: int = 120
-## Used to cast magical abilities.
-@export_range(0, 1000) var magicPoints: int = 20
-## Added to the attack action's strength.
-@export_range(1, 99999999) var strength: int = 50
-## Lets you take less damage from attacks.
-@export_range(0, 100) var defense: int = 10
-## Added to magic action's strength.
-@export_range(1, 99999999) var magicStrength: int = 10
-## The battler with the highest speed acts first.
-@export_range(0, 50) var speed: int = 10
+#####################################
+## STAT SYSTEM (Body / Mind / Spirit)
+#####################################
+@export_category("Base Stats")
+## Represents physical power and durability.
+@export_range(1, 100) var body: int = 1:
+	set(value):
+		body = value
+		notify_property_list_changed() # Updates the inspector immediately
+
+## Represents intelligence and speed.
+@export_range(1, 100) var mind: int = 1:
+	set(value):
+		mind = value
+		notify_property_list_changed()
+
+## Represents magic power and resilience.
+@export_range(1, 100) var spirit: int = 1:
+	set(value):
+		spirit = value
+		notify_property_list_changed()
+
+#############################################
+# DERIVED STATS (Calculated automatically)
+#############################################
+# Used standard RPG formulas here. 
+
+## Health = (Body + Spirit) * 5
+var health: int:
+	get: return (body + spirit) * 20
+
+## Magic Points = (Mind + Spirit) * 2
+var magicPoints: int:
+	get: return (mind + spirit) * 5
+
+## Strength = Body + Mind
+var strength: int:
+	get: return (body + mind) * 2
+
+## Defense = Body + Spirit
+var defense: int:
+	get: return (body + spirit) * 2
+
+## Magic Strength = Mind + Spirit
+var magicStrength: int:
+	get: return (mind + spirit) * 2
+
+## Speed = (Body + Mind) / 2
+var speed: int:
+	get: return (body + mind) * 5
 
 @export_category("Text")
 ## This text will appear when your battler is knocked out.

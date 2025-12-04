@@ -54,15 +54,20 @@ class_name AllyBattler extends Battler
 		magic_points_label.text = "Magic points: " + str(magicPoints)
 		magic_bar.value = value
 ## Ally's health can't exceed this.
-@onready var max_health: int = stats.health
+var max_health: int:
+	get: return stats.health
 ## How much physical damage the Ally can do.
-@onready var strength: int = stats.strength
+var strength: int:
+	get: return stats.strength
 ## How potent this Ally's spells are.
-@onready var magicStrength: int = stats.magicStrength
+var magicStrength: int:
+	get: return stats.magicStrength
 ## Reduces damage from enemies.
-@onready var defense: int = stats.defense
+var defense: int:
+	get: return stats.defense
 ## The battler with the highest speed gets to act first.
-@onready var speed: int = stats.speed
+var speed: int:
+	get: return stats.speed
 ## Display name for the Ally in battle.
 @onready var name_: String = stats.name
 ## Gets displayed when this Ally dies.
