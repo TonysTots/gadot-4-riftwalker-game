@@ -143,7 +143,8 @@ func on_battle_won() -> void:
 	await SignalBus.text_window_closed
 	ScreenFade.fade_into_black()
 	await get_tree().create_timer(0.5).timeout
-	get_tree().change_scene_to_file("uid://0xc8hpp1566k")
+	Global.pick_new_battle()
+	get_tree().reload_current_scene()
 
 func on_battle_lost() -> void:
 	$Cursor/AnimationPlayer.play("fade")

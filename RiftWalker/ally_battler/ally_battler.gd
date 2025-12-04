@@ -20,6 +20,8 @@ class_name AllyBattler extends Battler
 @onready var magic_button: Button = %MagicButton
 ## Displays list of avalible items when clicked.
 @onready var item_button: Button = %ItemButton
+## Exits the current battle when selected.
+@onready var flee_button: Button = %FleeButton
 ## handles the defense stat.
 @onready var defending_manager: Node = $DefendingDecider_Manager
 ## Ally's health bar.
@@ -366,3 +368,10 @@ func on_button_focus_changed() -> void:
 func _on_cancel_button_pressed() -> void:
 	Audio.btn_pressed.play()
 	Input.action_press("ui_cancel")
+
+func _on_flee_button_pressed() -> void:
+	# This tells the Battle scene that we lost, triggering the game over screen
+	# and returning us to the main menu via "uid://0xc8hpp1566k"
+	for button: Button in %ButtonContainer.get_children():
+			button.hide()
+	SignalBus.battle_lost.emit()
