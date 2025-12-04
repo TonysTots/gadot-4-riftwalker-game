@@ -17,6 +17,9 @@ var sound_types: Dictionary = {
 	"cursed" : preload("res://assets/SFX/battler_cursed.wav"),
 }
 
+func _ready() -> void:
+	won.volume_db = -10.0
+
 func play_action_sound(actionType: StringName) -> void:
 	action_effect.stream = sound_types[actionType]
 	action_effect.play()
