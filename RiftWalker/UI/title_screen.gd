@@ -14,6 +14,9 @@ var index: int = 0:
 		labelToFocus.modulate.a = 1
 var isSelecting: bool = false
 
+const SETTINGS_SCENE = preload("res://UI/settings_menu.tscn")
+var settings_instance: CanvasLayer = null
+
 func _ready() -> void:
 	$UIBox.hide()
 	SignalBus.label_index_changed.connect(
@@ -22,7 +25,7 @@ func _ready() -> void:
 	)
 	SignalBus.selected_label.connect(begin_battle)
 	ScreenFade.fade_into_game()
-	$VBoxContainer/ViewBattlesButton.grab_focus()
+	$VBoxContainer/StartGameButton.grab_focus()
 	
 	# Load battles from disk:
 	var battlePaths: PackedStringArray = DirAccess.get_files_at("res://battle_data/")
@@ -39,6 +42,8 @@ func _ready() -> void:
 		label_container.add_child(label)
 	#Begin selecting battle:
 	index = 0
+	
+	$VBoxContainer/SettingsButton.pressed.connect(_on_settings_button_pressed)
 
 func begin_battle() -> void:
 	Global.battle = battles[index]
@@ -58,7 +63,20 @@ func _input(event: InputEvent) -> void:
 func _on_view_battles_button_pressed() -> void:
 	ui_box.show()
 	isSelecting = true
-	$VBoxContainer/ViewBattlesButton.release_focus()
+	$VBoxContainer/StartGameButton.release_focus()
 
 func _on_quit_button_pressed() -> void:
 	get_tree().quit()
+
+func _on_settings_button_pressed() -> void:
+	if settings_instance == null:
+		settings_instance = SETTINGS_SCENE.instantiate()
+		add_child(settings_instance)
+		# Listen for when the menu closes to return focus
+		settings_instance.closed.connect(_on_settings_closed)
+	
+	settings_instance.show()
+	$VBoxContainer/SettingsButton.release_focus()
+
+func _on_settings_closed() -> void:
+	$VBoxContainer/SettingsButton.grab_focus()
