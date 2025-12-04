@@ -143,13 +143,29 @@ func on_battle_won() -> void:
 	await SignalBus.text_window_closed
 	ScreenFade.fade_into_black()
 	await get_tree().create_timer(0.5).timeout
-	Global.pick_new_battle()
-	get_tree().reload_current_scene()
+	get_tree().change_scene_to_file("res://UI/upgrade_menu.tscn")
+
+func reset_stats() -> void:
+	for stats: AllyStats in battleData.allies:
+		match stats.name:
+			"Blake":
+				stats.body = 1
+				stats.mind = 3
+				stats.spirit = 4
+			"Michael":
+				stats.body = 3
+				stats.mind = 4
+				stats.spirit = 1
+			"Mitchell":
+				stats.body = 4
+				stats.mind = 2
+				stats.spirit = 2
 
 func on_battle_lost() -> void:
 	$Cursor/AnimationPlayer.play("fade")
 	SignalBus.display_text.emit("Battle lost...")
 	Audio.lost.play()
+	reset_stats()
 	await SignalBus.text_window_closed
 	ScreenFade.fade_into_black()
 	await get_tree().create_timer(0.5).timeout

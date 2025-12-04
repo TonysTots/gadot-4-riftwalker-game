@@ -1,0 +1,80 @@
+[gd_scene load_steps=6 format=3 uid="uid://cifmxhin2frn6"]
+
+[ext_resource type="Script" uid="uid://d2nm8vkrwride" path="res://UI/upgrade_menu.gd" id="1_v27ci"]
+[ext_resource type="Script" uid="uid://7vjy7gmbq5el" path="res://base_resource_classes/ally_stats.gd" id="2_4r3qf"]
+[ext_resource type="Resource" uid="uid://bbwdd2xv1bf1i" path="res://stats/ally_stats/blake.tres" id="3_3w7tv"]
+[ext_resource type="Resource" uid="uid://cghwgxhnra2og" path="res://stats/ally_stats/michael.tres" id="4_1uskd"]
+[ext_resource type="Resource" uid="uid://cnxgagq22hko" path="res://stats/ally_stats/mitchell.tres" id="5_dc6v4"]
+
+[node name="UpgradeMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_v27ci")
+party_stats = Array[ExtResource("2_4r3qf")]([ExtResource("3_3w7tv"), ExtResource("4_1uskd"), ExtResource("5_dc6v4")])
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="HeroContainer" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 10.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 50
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -136.0
+offset_top = 53.0
+offset_right = 136.0
+offset_bottom = -244.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Choose an Upgrade"
+metadata/_edit_use_anchors_ = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="UndoButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+size_flags_horizontal = 2
+size_flags_vertical = 8
+text = "Undo"
+
+[node name="StartButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_vertical = 8
+disabled = true
+text = "Fight!"
