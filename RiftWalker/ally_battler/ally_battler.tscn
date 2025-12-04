@@ -76,7 +76,15 @@ layout_mode = 2
 mouse_filter = 1
 text = "Item"
 
+[node name="FleeButton" type="Button" parent="UI/Control/ButtonContainer" index="4"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+mouse_filter = 1
+text = "Flee"
+
 [node name="SelectionWindow" parent="UI/Control" index="1" instance=ExtResource("6_kq74v")]
+visible = false
 layout_mode = 1
 anchor_left = 0.561
 anchor_bottom = 1.0
@@ -147,4 +155,5 @@ show_percentage = false
 [connection signal="pressed" from="UI/Control/ButtonContainer/MagicButton" to="MagicDecider" method="_on_magic_button_pressed"]
 [connection signal="focus_entered" from="UI/Control/ButtonContainer/ItemButton" to="." method="on_button_focus_changed"]
 [connection signal="pressed" from="UI/Control/ButtonContainer/ItemButton" to="ItemDecider" method="_on_item_button_pressed"]
+[connection signal="pressed" from="UI/Control/ButtonContainer/FleeButton" to="." method="_on_flee_button_pressed"]
 [connection signal="pressed" from="UI/Control/SelectionWindow/CancelButton" to="." method="_on_cancel_button_pressed"]

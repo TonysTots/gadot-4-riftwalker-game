@@ -1,17 +1,61 @@
-[gd_scene load_steps=5 format=3 uid="uid://0xc8hpp1566k"]
+[gd_scene load_steps=8 format=3 uid="uid://0xc8hpp1566k"]
 
 [ext_resource type="Script" uid="uid://13rhnf5pffva" path="res://UI/title_screen.gd" id="1_el03b"]
 [ext_resource type="Texture2D" uid="uid://bhnev71mmyion" path="res://assets/battle_backgrounds/space.jpg" id="2_816ia"]
 [ext_resource type="PackedScene" uid="uid://om1j1at88sjh" path="res://UI/text_window.tscn" id="3_6g7fu"]
 [ext_resource type="AudioStream" uid="uid://ypt0ct5wd1v7" path="res://assets/music/space-438391.mp3" id="4_816ia"]
 
+[sub_resource type="Animation" id="Animation_816ia"]
+resource_name = "spin"
+length = 60.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 60),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.2831855]
+}
+
+[sub_resource type="Animation" id="Animation_udsnl"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_tuktx"]
+_data = {
+&"RESET": SubResource("Animation_udsnl"),
+&"spin": SubResource("Animation_816ia")
+}
+
 [node name="TitleScreen" type="CanvasLayer"]
 script = ExtResource("1_el03b")
 
 [node name="BG" type="Sprite2D" parent="."]
-position = Vector2(288, 162)
-scale = Vector2(0.35, 0.35)
+position = Vector2(284, 176.00002)
+scale = Vector2(0.46614575, 0.5729167)
 texture = ExtResource("2_816ia")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="BG"]
+libraries = {
+&"": SubResource("AnimationLibrary_tuktx")
+}
+autoplay = "spin"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 anchors_preset = -1
