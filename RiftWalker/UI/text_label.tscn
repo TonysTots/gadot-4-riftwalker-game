@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3 uid="uid://cotypm82phjd3"]
+
+[ext_resource type="Script" uid="uid://deb33lxjm44s" path="res://UI/text_label.gd" id="1_3lnxh"]
+
+[node name="TextLabel" type="Label"]
+modulate = Color(1, 1, 1, 0.529412)
+anchors_preset = -1
+anchor_right = 0.241
+anchor_bottom = 0.071
+offset_right = -98.816
+offset_bottom = -0.00400162
+mouse_filter = 1
+theme_override_font_sizes/font_size = 8
+text = "Battle name here."
+script = ExtResource("1_3lnxh")
+
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

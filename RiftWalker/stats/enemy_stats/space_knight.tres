@@ -1,0 +1,244 @@
+[gd_resource type="Resource" script_class="EnemyStats" load_steps=55 format=3 uid="uid://u2ab0mjen2j5"]
+
+[ext_resource type="Script" uid="uid://caaept1ft7bx2" path="res://base_resource_classes/enemy_action.gd" id="1_1x2q4"]
+[ext_resource type="Resource" uid="uid://c0evk445emvmi" path="res://actions/enemy_actions/attack_actions/slash.tres" id="2_8qosd"]
+[ext_resource type="Resource" uid="uid://lfvsqt8r3mpq" path="res://actions/enemy_actions/defend_actions/defend.tres" id="3_r7k2r"]
+[ext_resource type="Script" uid="uid://1v0m2fkfpkk7" path="res://base_resource_classes/enemy_stats.gd" id="4_foias"]
+[ext_resource type="Texture2D" uid="uid://c78idq2gxbmnu" path="res://assets/sprites/space_knights_sprites/1_atk/1_atk_1.png" id="5_1x2q4"]
+[ext_resource type="Texture2D" uid="uid://dfkowue6ynvq" path="res://assets/sprites/space_knights_sprites/1_atk/1_atk_2.png" id="6_8qosd"]
+[ext_resource type="Texture2D" uid="uid://h3n2kkv3o5g7" path="res://assets/sprites/space_knights_sprites/1_atk/1_atk_3.png" id="7_r7k2r"]
+[ext_resource type="Texture2D" uid="uid://2jejfhd353tu" path="res://assets/sprites/space_knights_sprites/1_atk/1_atk_4.png" id="8_foias"]
+[ext_resource type="Texture2D" uid="uid://drsfr2042788k" path="res://assets/sprites/space_knights_sprites/1_atk/1_atk_5.png" id="9_hh7xj"]
+[ext_resource type="Texture2D" uid="uid://pug5qlfmq5mh" path="res://assets/sprites/space_knights_sprites/1_atk/1_atk_6.png" id="10_ffr14"]
+[ext_resource type="Texture2D" uid="uid://ckxarb28154mj" path="res://assets/sprites/space_knights_sprites/1_atk/1_atk_7.png" id="11_yohwe"]
+[ext_resource type="Texture2D" uid="uid://71nwvuxvj4gq" path="res://assets/sprites/space_knights_sprites/1_atk/1_atk_8.png" id="12_ydo7r"]
+[ext_resource type="Texture2D" uid="uid://8mae66y8rk7k" path="res://assets/sprites/space_knights_sprites/death/death_1.png" id="13_co8h5"]
+[ext_resource type="Texture2D" uid="uid://bsdcfqcnh6t7y" path="res://assets/sprites/space_knights_sprites/death/death_2.png" id="14_gard3"]
+[ext_resource type="Texture2D" uid="uid://dif1y78wjxygt" path="res://assets/sprites/space_knights_sprites/death/death_3.png" id="15_3w38d"]
+[ext_resource type="Texture2D" uid="uid://byhojpw75v1ng" path="res://assets/sprites/space_knights_sprites/death/death_4.png" id="16_onu0k"]
+[ext_resource type="Texture2D" uid="uid://ctbicrwr51l47" path="res://assets/sprites/space_knights_sprites/death/death_5.png" id="17_6hmjo"]
+[ext_resource type="Texture2D" uid="uid://fb8xyklxgjx1" path="res://assets/sprites/space_knights_sprites/death/death_6.png" id="18_t0ua5"]
+[ext_resource type="Texture2D" uid="uid://saxko6kifwf1" path="res://assets/sprites/space_knights_sprites/death/death_7.png" id="19_yo20q"]
+[ext_resource type="Texture2D" uid="uid://caxl3kuumhwci" path="res://assets/sprites/space_knights_sprites/death/death_8.png" id="20_hfmdm"]
+[ext_resource type="Texture2D" uid="uid://ty6q75cllj0k" path="res://assets/sprites/space_knights_sprites/death/death_9.png" id="21_hb5eu"]
+[ext_resource type="Texture2D" uid="uid://bwwna18jbb84k" path="res://assets/sprites/space_knights_sprites/death/death_10.png" id="22_v68bq"]
+[ext_resource type="Texture2D" uid="uid://dqkxa7drk4gml" path="res://assets/sprites/space_knights_sprites/death/death_11.png" id="23_igmdr"]
+[ext_resource type="Texture2D" uid="uid://ifuh5887yw1q" path="res://assets/sprites/space_knights_sprites/death/death_12.png" id="24_elncl"]
+[ext_resource type="Texture2D" uid="uid://fiilqli41pmv" path="res://assets/sprites/space_knights_sprites/death/death_13.png" id="25_1e2w3"]
+[ext_resource type="Texture2D" uid="uid://c6b6oxtnt0skk" path="res://assets/sprites/space_knights_sprites/death/death_14.png" id="26_bvw24"]
+[ext_resource type="Texture2D" uid="uid://dtbm2u73rrxo1" path="res://assets/sprites/space_knights_sprites/death/death_15.png" id="27_atcsl"]
+[ext_resource type="Texture2D" uid="uid://c4jhk6qw0dugg" path="res://assets/sprites/space_knights_sprites/death/death_16.png" id="28_0n6ap"]
+[ext_resource type="Texture2D" uid="uid://d1e7tospdi1rj" path="res://assets/sprites/space_knights_sprites/death/death_17.png" id="29_e41si"]
+[ext_resource type="Texture2D" uid="uid://ccru1u3lb7kbn" path="res://assets/sprites/space_knights_sprites/death/death_18.png" id="30_lskyb"]
+[ext_resource type="Texture2D" uid="uid://lgsx4by2g3cq" path="res://assets/sprites/space_knights_sprites/death/death_19.png" id="31_cn80l"]
+[ext_resource type="Texture2D" uid="uid://dsg6tmnp5e3wg" path="res://assets/sprites/space_knights_sprites/defend/defend_1.png" id="32_4peeh"]
+[ext_resource type="Texture2D" uid="uid://di0h1twukag1s" path="res://assets/sprites/space_knights_sprites/defend/defend_2.png" id="33_nqdmd"]
+[ext_resource type="Texture2D" uid="uid://c2sl3he2y3pn" path="res://assets/sprites/space_knights_sprites/defend/defend_3.png" id="34_igdc7"]
+[ext_resource type="Texture2D" uid="uid://yuyops13rtlc" path="res://assets/sprites/space_knights_sprites/defend/defend_4.png" id="35_4lwg2"]
+[ext_resource type="Texture2D" uid="uid://brrq00qjbjxug" path="res://assets/sprites/space_knights_sprites/defend/defend_5.png" id="36_tx1l0"]
+[ext_resource type="Texture2D" uid="uid://cnyhlghxr7rdo" path="res://assets/sprites/space_knights_sprites/defend/defend_6.png" id="37_5211i"]
+[ext_resource type="Texture2D" uid="uid://b5nwu18tbhtxp" path="res://assets/sprites/space_knights_sprites/defend/defend_7.png" id="38_sb2jt"]
+[ext_resource type="Texture2D" uid="uid://dohj6hs1q1xbn" path="res://assets/sprites/space_knights_sprites/defend/defend_8.png" id="39_chnli"]
+[ext_resource type="Texture2D" uid="uid://d2kaf3jqtktry" path="res://assets/sprites/space_knights_sprites/take_hit/take_hit_1.png" id="40_kso54"]
+[ext_resource type="Texture2D" uid="uid://crknwjqp1a8l1" path="res://assets/sprites/space_knights_sprites/take_hit/take_hit_2.png" id="41_ucqfx"]
+[ext_resource type="Texture2D" uid="uid://bjn1cibuvpny0" path="res://assets/sprites/space_knights_sprites/take_hit/take_hit_3.png" id="42_xn2vk"]
+[ext_resource type="Texture2D" uid="uid://jxicmdakyu5m" path="res://assets/sprites/space_knights_sprites/take_hit/take_hit_4.png" id="43_w2mqb"]
+[ext_resource type="Texture2D" uid="uid://dkpl8nwn71myd" path="res://assets/sprites/space_knights_sprites/take_hit/take_hit_5.png" id="44_jg18n"]
+[ext_resource type="Texture2D" uid="uid://cev0aci8x8o4s" path="res://assets/sprites/space_knights_sprites/take_hit/take_hit_6.png" id="45_vkuij"]
+[ext_resource type="Texture2D" uid="uid://xa5ibyj82qwt" path="res://assets/sprites/space_knights_sprites/idle/idle_1.png" id="46_coe14"]
+[ext_resource type="Texture2D" uid="uid://cyihh8tyrdq8k" path="res://assets/sprites/space_knights_sprites/idle/idle_2.png" id="47_cdggj"]
+[ext_resource type="Texture2D" uid="uid://3dp7sj4v24gy" path="res://assets/sprites/space_knights_sprites/idle/idle_3.png" id="48_j3e7p"]
+[ext_resource type="Texture2D" uid="uid://y351buln2ex" path="res://assets/sprites/space_knights_sprites/idle/idle_4.png" id="49_nyrmj"]
+[ext_resource type="Texture2D" uid="uid://ddhhtumac66qc" path="res://assets/sprites/space_knights_sprites/idle/idle_5.png" id="50_45wah"]
+[ext_resource type="Texture2D" uid="uid://1tnaqyav5ufn" path="res://assets/sprites/space_knights_sprites/idle/idle_6.png" id="51_h2k1q"]
+[ext_resource type="Texture2D" uid="uid://ba74yo7gxww0n" path="res://assets/sprites/space_knights_sprites/idle/idle_7.png" id="52_1vfuc"]
+[ext_resource type="Texture2D" uid="uid://ba43tii2mjy4n" path="res://assets/sprites/space_knights_sprites/idle/idle_8.png" id="53_shntf"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_fq7r7"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_1x2q4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_8qosd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_r7k2r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_foias")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_hh7xj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_ffr14")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_yohwe")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_ydo7r")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("13_co8h5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_gard3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_3w38d")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_onu0k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_6hmjo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_t0ua5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_yo20q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_hfmdm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_hb5eu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_v68bq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_igmdr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_elncl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_1e2w3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_bvw24")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_atcsl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_0n6ap")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_e41si")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_lskyb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_cn80l")
+}],
+"loop": false,
+"name": &"defeated",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("32_4peeh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_nqdmd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_igdc7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_4lwg2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_tx1l0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_5211i")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_sb2jt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_chnli")
+}],
+"loop": false,
+"name": &"defend",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("40_kso54")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_ucqfx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("42_xn2vk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("43_w2mqb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("44_jg18n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("45_vkuij")
+}],
+"loop": false,
+"name": &"hurt",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("46_coe14")
+}, {
+"duration": 1.0,
+"texture": ExtResource("47_cdggj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_j3e7p")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_nyrmj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("50_45wah")
+}, {
+"duration": 1.0,
+"texture": ExtResource("51_h2k1q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("52_1vfuc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("53_shntf")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}]
+
+[resource]
+script = ExtResource("4_foias")
+name_ = "Space knight"
+texture_scale = 2.0
+offset = Vector2(-8, -48)
+actions = Array[ExtResource("1_1x2q4")]([ExtResource("2_8qosd"), ExtResource("3_r7k2r")])
+health = 1000
+strength = 40
+defense = 40
+magicStrength = 30
+speed = 35
+defeatedText = "faded to dust!"
+spriteFrames = SubResource("SpriteFrames_fq7r7")

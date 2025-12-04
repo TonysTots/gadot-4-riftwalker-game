@@ -1,0 +1,107 @@
+[gd_scene load_steps=5 format=3 uid="uid://0xc8hpp1566k"]
+
+[ext_resource type="Script" uid="uid://13rhnf5pffva" path="res://UI/title_screen.gd" id="1_el03b"]
+[ext_resource type="Texture2D" uid="uid://bhnev71mmyion" path="res://assets/battle_backgrounds/space.jpg" id="2_816ia"]
+[ext_resource type="PackedScene" uid="uid://om1j1at88sjh" path="res://UI/text_window.tscn" id="3_6g7fu"]
+[ext_resource type="AudioStream" uid="uid://ypt0ct5wd1v7" path="res://assets/music/space-438391.mp3" id="4_816ia"]
+
+[node name="TitleScreen" type="CanvasLayer"]
+script = ExtResource("1_el03b")
+
+[node name="BG" type="Sprite2D" parent="."]
+position = Vector2(288, 162)
+scale = Vector2(0.35, 0.35)
+texture = ExtResource("2_816ia")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = -1
+anchor_left = 0.211
+anchor_top = 0.105
+anchor_right = 0.798
+anchor_bottom = 0.88
+offset_left = 78.464
+offset_top = -0.0200005
+offset_right = -78.648
+offset_bottom = -0.120026
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 35
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 30
+text = "RiftWalker
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ViewBattlesButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Start Game"
+
+[node name="QuitButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Quit"
+
+[node name="UIBox" parent="." instance=ExtResource("3_6g7fu")]
+visible = false
+anchor_left = 0.266
+anchor_top = 0.071
+anchor_right = 0.627
+anchor_bottom = 0.892
+offset_left = -0.216003
+offset_top = -0.00400162
+offset_right = -0.151978
+offset_bottom = -0.00799561
+
+[node name="LabelContainer" type="VBoxContainer" parent="UIBox"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.191
+anchor_top = 0.056
+anchor_right = 0.827
+anchor_bottom = 0.966
+offset_left = -3.718
+offset_top = -4.896
+offset_right = -0.0460052
+offset_bottom = 0.0440063
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="UIBox" parent="UIBox" instance=ExtResource("3_6g7fu")]
+layout_mode = 1
+anchor_left = 1.122
+anchor_top = 0.053
+anchor_right = 1.865
+anchor_bottom = 0.184
+offset_left = -1.37599
+offset_top = -0.0980005
+offset_right = 0.0799866
+offset_bottom = 0.0559959
+grow_horizontal = 1
+
+[node name="InstructionsLabel" type="Label" parent="UIBox/UIBox"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.111
+anchor_top = 0.2
+anchor_right = 0.962
+anchor_bottom = 0.912
+offset_left = -6.316
+offset_right = 1.92799
+offset_bottom = 4.08
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 8
+text = "Choose a battle!"
+
+[node name="Music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_816ia")
+autoplay = true
+parameters/looping = true
+
+[connection signal="pressed" from="VBoxContainer/ViewBattlesButton" to="." method="_on_view_battles_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
