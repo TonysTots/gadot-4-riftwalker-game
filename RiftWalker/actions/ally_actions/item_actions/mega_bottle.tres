@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Item" load_steps=4 format=3 uid="uid://baxl4pvy5tkf2"]
+
+[ext_resource type="Texture2D" uid="uid://ct8vsa0qltg8f" path="res://assets/sprites/mega_bottle.png" id="1_xm1c3"]
+[ext_resource type="Script" uid="uid://bj4dcxi3sb33c" path="res://base_resource_classes/item.gd" id="2_cqxsc"]
+[ext_resource type="AudioStream" uid="uid://wfjloebjkxrg" path="res://assets/SFX/fairy.wav" id="3_fbscr"]
+
+[resource]
+script = ExtResource("2_cqxsc")
+actionTargetType = 1
+healthAmount = 60
+icon = ExtResource("1_xm1c3")
+actionText = "released healing magic into the battlefield !"
+actionName = "Mega Bottle"
+sound = ExtResource("3_fbscr")

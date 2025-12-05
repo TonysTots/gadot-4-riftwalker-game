@@ -16,8 +16,9 @@ var all_battles: Array[BattleData] = [
 ]
 
 func _ready() -> void:
-	load_game() # Attempt to load coins when game starts
-	# Ensure we have a valid battle ready when the game starts
+	load_game() # Load coins when the game starts
+	
+	# Ensure we have a valid battle ready
 	pick_new_battle()
 
 # Pick a random battle from the list
@@ -28,9 +29,7 @@ func pick_new_battle() -> void:
 
 func save_game() -> void:
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	var data = {
-		"coins": coins
-	}
+	var data = { "coins": coins }
 	file.store_string(JSON.stringify(data))
 
 func load_game() -> void:

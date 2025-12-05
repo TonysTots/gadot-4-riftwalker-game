@@ -1,3 +1,118 @@
-[gd_scene format=3 uid="uid://bou7xooe1t3pg"]
+[gd_scene load_steps=14 format=3 uid="uid://bou7xooe1t3pg"]
+
+[ext_resource type="Script" uid="uid://kkuqahlcdcfm" path="res://UI/shop_menu.gd" id="1_tyiqa"]
+[ext_resource type="Script" uid="uid://bj4dcxi3sb33c" path="res://base_resource_classes/item.gd" id="2_qyr4j"]
+[ext_resource type="Resource" uid="uid://baxl4pvy5tkf2" path="res://actions/ally_actions/item_actions/mega_bottle.tres" id="3_hnnum"]
+[ext_resource type="Resource" uid="uid://d4h702fl6pwye" path="res://actions/ally_actions/item_actions/golden_apple.tres" id="4_kmyys"]
+[ext_resource type="Script" uid="uid://7vjy7gmbq5el" path="res://base_resource_classes/ally_stats.gd" id="5_cjr8l"]
+[ext_resource type="Resource" uid="uid://bbwdd2xv1bf1i" path="res://stats/ally_stats/blake.tres" id="6_5sm4a"]
+[ext_resource type="Resource" uid="uid://cghwgxhnra2og" path="res://stats/ally_stats/michael.tres" id="7_4shb1"]
+[ext_resource type="Resource" uid="uid://cnxgagq22hko" path="res://stats/ally_stats/mitchell.tres" id="8_j3uti"]
+[ext_resource type="Texture2D" uid="uid://bkx22jvnlshd0" path="res://assets/sprites/Border EB.png" id="9_hnnum"]
+[ext_resource type="Texture2D" uid="uid://c8pxkbc12nspu" path="res://assets/sprites/shop.jpg" id="9_kmyys"]
+[ext_resource type="AudioStream" uid="uid://chdrtoavl8uro" path="res://assets/music/shop_music.mp3" id="11_cjr8l"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hnnum"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_kmyys"]
+texture = ExtResource("9_hnnum")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
+expand_margin_left = 10.0
+expand_margin_top = 10.0
+expand_margin_right = 10.0
+expand_margin_bottom = 10.0
 
 [node name="ShopMenu" type="CanvasLayer"]
+script = ExtResource("1_tyiqa")
+items_for_sale = Array[ExtResource("2_qyr4j")]([ExtResource("3_hnnum"), ExtResource("4_kmyys")])
+buyers = Array[ExtResource("5_cjr8l")]([ExtResource("6_5sm4a"), ExtResource("7_4shb1"), ExtResource("8_j3uti")])
+
+[node name="ShopBackground" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("9_kmyys")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_hnnum")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 32
+text = "Shop"
+horizontal_alignment = 1
+
+[node name="Coins" type="Label" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ShopGrid" type="GridContainer" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
+columns = 3
+
+[node name="Close" type="Button" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Return"
+
+[node name="BuyPopup" type="PanelContainer" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -104.0
+offset_top = -24.0
+offset_right = 104.0
+offset_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_kmyys")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="BuyPopup"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="BuyPopup/VBoxContainer"]
+layout_mode = 2
+text = "Buy for whom?"
+
+[node name="CharacterButtons" type="VBoxContainer" parent="BuyPopup/VBoxContainer"]
+layout_mode = 2
+
+[node name="CancelButton" type="Button" parent="BuyPopup/VBoxContainer"]
+layout_mode = 2
+text = "Cancel"
+
+[node name="Music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_cjr8l")
+volume_db = -5.0
+autoplay = true
+parameters/looping = true

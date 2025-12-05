@@ -29,6 +29,7 @@ func _ready() -> void:
 	SignalBus.selected_label.connect(begin_battle)
 	
 	setup_button_sounds(%StartGameButton)
+	setup_button_sounds(%ShopButton)
 	setup_button_sounds(%SettingsButton)
 	setup_button_sounds(%QuitButton)
 	
@@ -60,6 +61,7 @@ func _ready() -> void:
 	
 	%StartGameButton.pressed.connect(_on_start_game_button_pressed)
 	%SettingsButton.pressed.connect(_on_settings_button_pressed)
+	%ShopButton.pressed.connect(_on_shop_button_pressed)
 
 func begin_battle() -> void:
 	Audio.btn_pressed.play()
@@ -94,6 +96,10 @@ func _on_back_button_pressed() -> void:
 	ChooseBattle.hide()
 	isSelecting = false
 	%StartGameButton.grab_focus()
+
+func _on_shop_button_pressed() -> void:
+	Audio.btn_pressed.play()
+	get_tree().change_scene_to_file("res://UI/shop_menu.tscn")
 
 func _on_settings_button_pressed() -> void:
 	Audio.btn_pressed.play()

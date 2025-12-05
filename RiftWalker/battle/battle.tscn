@@ -169,7 +169,7 @@ vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="BattleMusic" type="AudioStreamPlayer" parent="."]
-volume_db = -10.0
+volume_db = -5.0
 autoplay = true
 
 [node name="AllySpawnCircle" type="Marker2D" parent="."]

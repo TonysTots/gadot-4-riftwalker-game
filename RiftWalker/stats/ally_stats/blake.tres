@@ -5,7 +5,7 @@
 [ext_resource type="Resource" uid="uid://dtv4tf41ul5p" path="res://actions/ally_actions/defend_actions/defend.tres" id="3_aqgyd"]
 [ext_resource type="Script" uid="uid://bj4dcxi3sb33c" path="res://base_resource_classes/item.gd" id="4_tte8a"]
 [ext_resource type="Resource" uid="uid://d4h702fl6pwye" path="res://actions/ally_actions/item_actions/golden_apple.tres" id="5_4h3lh"]
-[ext_resource type="Resource" uid="uid://baxl4pvy5tkf2" path="res://actions/ally_actions/item_actions/fairy_in_bottle.tres" id="6_g5ax6"]
+[ext_resource type="Resource" uid="uid://baxl4pvy5tkf2" path="res://actions/ally_actions/item_actions/mega_bottle.tres" id="6_g5ax6"]
 [ext_resource type="Script" uid="uid://bkvsdp5gixgqe" path="res://base_resource_classes/spell.gd" id="7_2ctf2"]
 [ext_resource type="Resource" uid="uid://c0jkw1rnk40nw" path="res://actions/ally_actions/magic_actions/offensive_magic_actions/ice_spear.tres" id="8_47daj"]
 [ext_resource type="Resource" uid="uid://qs2uxjyytj0e" path="res://actions/ally_actions/magic_actions/healing_magic_actions/single_heal.tres" id="9_j7aty"]

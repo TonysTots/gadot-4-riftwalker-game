@@ -74,18 +74,22 @@ theme_override_constants/separation = 35
 
 [node name="TitleLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 15
-theme_override_font_sizes/font_size = 30
-text = "RiftWalker
-"
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 32
+text = "RiftWalker"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="StartGameButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Start Game"
+
+[node name="ShopButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Shop"
 
 [node name="SettingsButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
@@ -98,6 +102,7 @@ layout_mode = 2
 text = "Quit"
 
 [node name="ChooseBattle" parent="." instance=ExtResource("3_6g7fu")]
+visible = false
 anchors_preset = -1
 anchor_left = 0.266
 anchor_top = 0.071

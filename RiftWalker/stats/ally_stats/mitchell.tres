@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://dtv4tf41ul5p" path="res://actions/ally_actions/defend_actions/defend.tres" id="4_k7e3o"]
 [ext_resource type="Script" uid="uid://bj4dcxi3sb33c" path="res://base_resource_classes/item.gd" id="5_gix8k"]
 [ext_resource type="Resource" uid="uid://d4h702fl6pwye" path="res://actions/ally_actions/item_actions/golden_apple.tres" id="6_5h10y"]
-[ext_resource type="Resource" uid="uid://baxl4pvy5tkf2" path="res://actions/ally_actions/item_actions/fairy_in_bottle.tres" id="7_aoa10"]
+[ext_resource type="Resource" uid="uid://baxl4pvy5tkf2" path="res://actions/ally_actions/item_actions/mega_bottle.tres" id="7_aoa10"]
 [ext_resource type="Script" uid="uid://bkvsdp5gixgqe" path="res://base_resource_classes/spell.gd" id="8_g3rw4"]
 [ext_resource type="Resource" uid="uid://fq77qto0fv7s" path="res://actions/ally_actions/magic_actions/offensive_magic_actions/burn_spell.tres" id="9_7t1yr"]
 [ext_resource type="Script" uid="uid://7vjy7gmbq5el" path="res://base_resource_classes/ally_stats.gd" id="10_4ndj2"]

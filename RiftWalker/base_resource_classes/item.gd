@@ -11,3 +11,9 @@ enum ActionTargetType {
 @export var actionTargetType: ActionTargetType = ActionTargetType.SINGLE_ALLY
 ## How much health this item will recover.
 @export_range(0, 9999999, 5) var healthAmount: int = 50
+
+@export_category("Visuals")
+@export var icon: Texture2D ## Drag your image file here in the Inspector!
+
+@export var price: int = 50
+@export_multiline var description: String = "Restores health."

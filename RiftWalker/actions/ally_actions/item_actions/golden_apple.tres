@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="AllyHealingItemAction" load_steps=3 format=3 uid="uid://d4h702fl6pwye"]
+[gd_resource type="Resource" script_class="Item" load_steps=4 format=3 uid="uid://d4h702fl6pwye"]
 
-[ext_resource type="Script" path="res://base_resource_classes/item.gd" id="1_mucli"]
+[ext_resource type="Texture2D" uid="uid://jq1wjwo4nt2v" path="res://assets/sprites/golden_apple.png" id="1_1rooh"]
+[ext_resource type="Script" uid="uid://bj4dcxi3sb33c" path="res://base_resource_classes/item.gd" id="1_mucli"]
 [ext_resource type="AudioStream" uid="uid://dor1nibnqasb4" path="res://assets/SFX/bite.mp3" id="2_utdi0"]
 
 [resource]
 script = ExtResource("1_mucli")
 healthAmount = 80
-actionTargetType = 0
+icon = ExtResource("1_1rooh")
 actionText = "took out the shiny apple !"
 actionName = "Golden apple"
 sound = ExtResource("2_utdi0")
