@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://om1j1at88sjh"]
 
-[ext_resource type="Texture2D" uid="uid://bkx22jvnlshd0" path="res://UI/Border EB.png" id="1_t6a2q"]
+[ext_resource type="Texture2D" uid="uid://bkx22jvnlshd0" path="res://assets/sprites/Border EB.png" id="1_t6a2q"]
 
 [node name="UIBox" type="NinePatchRect"]
 custom_minimum_size = Vector2(0, 40)

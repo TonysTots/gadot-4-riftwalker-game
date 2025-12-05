@@ -1,10 +1,21 @@
-[gd_scene load_steps=11 format=3 uid="uid://p86u62q8dtxq"]
+[gd_scene load_steps=12 format=3 uid="uid://p86u62q8dtxq"]
 
 [ext_resource type="Script" uid="uid://cljph4wryb2nv" path="res://battle/battle.gd" id="1_k054m"]
-[ext_resource type="PackedScene" uid="uid://om1j1at88sjh" path="res://UI/text_window.tscn" id="2_finoy"]
+[ext_resource type="Texture2D" uid="uid://bkx22jvnlshd0" path="res://assets/sprites/Border EB.png" id="2_4mnim"]
 [ext_resource type="Texture2D" uid="uid://cd16g5n5ul1i5" path="res://assets/sprites/cursor.png" id="4_6hnvb"]
 [ext_resource type="Script" uid="uid://ca0f7megfspad" path="res://battle/debuging_circle.gd" id="4_137ac"]
 [ext_resource type="Texture2D" uid="uid://bngc4pp37q1wy" path="res://assets/sprites/wrench.png" id="5_4mnim"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_l1kiu"]
+content_margin_left = 10.0
+content_margin_top = 15.0
+content_margin_right = 10.0
+content_margin_bottom = 15.0
+texture = ExtResource("2_4mnim")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
 
 [sub_resource type="Animation" id="Animation_mv724"]
 length = 0.001
@@ -135,8 +146,27 @@ position = Vector2(288, 162)
 
 [node name="Battlers" type="Node" parent="."]
 
-[node name="TextWindow" parent="." instance=ExtResource("2_finoy")]
+[node name="TextWindow" type="PanelContainer" parent="."]
 visible = false
+custom_minimum_size = Vector2(0, 40)
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 40.0
+grow_horizontal = 2
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxTexture_l1kiu")
+
+[node name="Label" type="Label" parent="TextWindow"]
+custom_minimum_size = Vector2(550, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+text = "sample
+sample
+sample
+sample
+sample"
+vertical_alignment = 1
+autowrap_mode = 3
 
 [node name="BattleMusic" type="AudioStreamPlayer" parent="."]
 volume_db = -10.0

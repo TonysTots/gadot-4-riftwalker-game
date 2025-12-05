@@ -1,7 +1,7 @@
 extends Node
 
 @onready var battlers := $Battlers.get_children()
-@onready var text_window: NinePatchRect = $TextWindow
+@onready var text_window: PanelContainer = $TextWindow
 @onready var text_label: Label = $TextWindow/Label
 @onready var battle_music: AudioStreamPlayer = $BattleMusic
 
@@ -143,11 +143,34 @@ func on_cursor_come_to_me(my_position: Vector2, is_ally: bool) -> void:
 	var tween: Tween = get_tree().create_tween()
 	tween.tween_property($Cursor, "global_position", finalValue, 0.1)
 
+# --- REWARD CALCULATION ---
+func calculate_loot() -> int:
+	var total_reward: int = 0
+	# Iterate over the enemy stats in the battle data to calculate reward
+	for enemy_stats: EnemyStats in battleData.enemies:
+		# Formula: 10% of HP + 20% of Strength + 20% of Magic Strength
+		# Example: 120 HP, 50 Str = 12 + 10 = 22 coins per enemy
+		var coin_value = (enemy_stats.health * 0.1) + (enemy_stats.strength * 0.2) + (enemy_stats.magicStrength * 0.2)
+		total_reward += int(coin_value)
+	
+	# Minimum 10 coins just in case
+	return max(10, total_reward)
+
 func on_battle_won() -> void:
 	$Cursor/AnimationPlayer.play("fade")
-	SignalBus.display_text.emit("Battle won !")
+	
+	# 1. Calculate Rewards
+	var coins_earned = calculate_loot()
+	Global.coins += coins_earned
+	Global.save_game() # Save immediately
+	
+	# 2. Display Rewards Pop-up
+	var reward_text = "Battle Won!\n\nLoot Found:\n" + str(coins_earned) + " Coins"
+	SignalBus.display_text.emit(reward_text)
+	
 	battle_music.playing = false
 	Audio.won.play()
+	
 	await SignalBus.text_window_closed
 	ScreenFade.fade_into_black()
 	await get_tree().create_timer(0.5).timeout
