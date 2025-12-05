@@ -45,10 +45,18 @@ func perform_action() -> void:
 ## This method decides whether the animation is meant to be played by the [AnimationPlayer]
 ## or by the [AnimatedSprite2D].
 func play_anim(animationName: String) -> void:
+	# --- NEW: Use Global game_speed ---
+	var speed_mult: float = Global.game_speed
+	
 	var animPlayerAnims: Array[String] = ["heal", "cursed"]
+	
 	if animationName in animPlayerAnims:
+		# Set speed scale for AnimationPlayer
+		$AnimationPlayer.speed_scale = speed_mult
 		$AnimationPlayer.play(animationName)
 	else:
+		# Set speed scale for AnimatedSprite2D
+		$AnimatedSprite2D.speed_scale = speed_mult
 		$AnimatedSprite2D.play(animationName)
 
 ## This method makes the battler play the [code]"idle"[/code] animation again after finishing

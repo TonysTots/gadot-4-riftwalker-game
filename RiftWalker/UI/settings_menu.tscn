@@ -59,28 +59,49 @@ layout_mode = 2
 theme_override_constants/separation = 20
 
 [node name="Volume" type="VBoxContainer" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/Volume"]
+[node name="VolumeLabel" type="Label" parent="PanelContainer/VBoxContainer/Volume"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Master Volume"
 
 [node name="VolumeSlider" type="HSlider" parent="PanelContainer/VBoxContainer/Volume"]
+unique_name_in_owner = true
 layout_mode = 2
 max_value = 1.0
 step = 0.05
 value = 1.0
 
+[node name="Game Speed" type="VBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="GameSpeedLabel" type="Label" parent="PanelContainer/VBoxContainer/Game Speed"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="GameSpeedSlider" type="HSlider" parent="PanelContainer/VBoxContainer/Game Speed"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.5
+max_value = 5.0
+step = 0.1
+value = 1.0
+
 [node name="FullScreenCheck" type="CheckButton" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Full Screen"
 
 [node name="EndRunButton" type="Button" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
 visible = false
 layout_mode = 2
 text = "End Run"
 
 [node name="BackButton" type="Button" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Return"
 
@@ -121,11 +142,13 @@ text = "(Run progress will be lost!)"
 layout_mode = 2
 
 [node name="YesButton" type="Button" parent="ConfirmationPopup/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 6
 text = "Yes"
 
 [node name="NoButton" type="Button" parent="ConfirmationPopup/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 8

@@ -3,15 +3,16 @@ extends CanvasLayer
 signal closed
 signal end_run_requested ## New signal to tell Battle to quit
 
-@onready var volume_slider: HSlider = $PanelContainer/VBoxContainer/Volume/VolumeSlider
-@onready var fullscreen_check: CheckButton = $PanelContainer/VBoxContainer/FullScreenCheck
-
+@onready var volume_slider: HSlider = %VolumeSlider
+@onready var fullscreen_check: CheckButton = %FullScreenCheck
+@onready var speed_slider: HSlider = %GameSpeedSlider
+@onready var speed_label: Label = %GameSpeedLabel
 # --- NEW NODES ---
 # Make sure these paths match your scene exactly!
-@onready var end_run_btn: Button = $PanelContainer/VBoxContainer/EndRunButton
+@onready var end_run_btn: Button = %EndRunButton
 @onready var confirm_popup: PanelContainer = $ConfirmationPopup
-@onready var yes_btn: Button = $ConfirmationPopup/VBoxContainer/HBoxContainer/YesButton
-@onready var no_btn: Button = $ConfirmationPopup/VBoxContainer/HBoxContainer/NoButton
+@onready var yes_btn: Button = %YesButton
+@onready var no_btn: Button = %NoButton
 
 var master_bus_index: int
 
@@ -22,12 +23,17 @@ func _ready() -> void:
 	volume_slider.value = db_to_linear(AudioServer.get_bus_volume_db(master_bus_index))
 	fullscreen_check.button_pressed = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
 	
+	speed_slider.value = Global.game_speed
+	update_speed_label(Global.game_speed)
+	
 	# --- CONNECTIONS ---
 	volume_slider.value_changed.connect(_on_volume_changed)
 	fullscreen_check.toggled.connect(_on_fullscreen_toggled)
 	
 	$PanelContainer/VBoxContainer/BackButton.pressed.connect(_on_back_pressed)
 	setup_hover_sounds($PanelContainer/VBoxContainer/BackButton)
+	
+	speed_slider.value_changed.connect(_on_speed_changed)
 	
 	# End Run Logic
 	end_run_btn.pressed.connect(_on_end_run_pressed)
@@ -62,6 +68,14 @@ func _on_volume_changed(value: float) -> void:
 	AudioServer.set_bus_volume_db(master_bus_index, linear_to_db(value))
 	AudioServer.set_bus_mute(master_bus_index, value < 0.05)
 
+func _on_speed_changed(value: float) -> void:
+	Global.game_speed = value
+	update_speed_label(value)
+	Global.save_game()
+
+func update_speed_label(value: float) -> void:
+	speed_label.text = "Game Speed: " + str(value) + "x"
+	
 func _on_fullscreen_toggled(toggled_on: bool) -> void:
 	if toggled_on: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	else: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)

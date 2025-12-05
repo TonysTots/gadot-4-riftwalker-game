@@ -6,6 +6,8 @@ var battle: BattleData
 # GLOBAL CURRENCY
 var coins: int = 0
 
+var game_speed: float = 1.0
+
 # SAVE SYSTEM CONSTANTS
 const SAVE_PATH = "user://savegame.save"
 
@@ -29,7 +31,11 @@ func pick_new_battle() -> void:
 
 func save_game() -> void:
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	var data = { "coins": coins }
+	# --- NEW: Save fast_mode ---
+	var data = { 
+		"coins": coins,
+		"game_speed": game_speed
+	}
 	file.store_string(JSON.stringify(data))
 
 func load_game() -> void:
@@ -45,3 +51,6 @@ func load_game() -> void:
 		var data = json.data
 		if data.has("coins"):
 			coins = data["coins"]
+		# --- NEW: Load game_speed ---
+		if data.has("game_speed"):
+			game_speed = data["game_speed"]

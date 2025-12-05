@@ -209,7 +209,7 @@ func perform_action() -> void:
 				# Make target battler play death aniamtion:
 				battler.play_anim("defeated")
 				#Wait till anim is done
-				await get_tree().create_timer(1.0).timeout
+				await get_tree().create_timer(1.0 / Global.game_speed).timeout
 				# Display the battler's uniqe death text:
 				SignalBus.display_text.emit(battler.defeatedText)
 				# Wait until player closes text window:
@@ -257,7 +257,7 @@ func perform_action() -> void:
 					# Make target battler play death aniamtion:
 					battler.play_anim("defeated")
 					#Wait till anim is done
-					await get_tree().create_timer(1.0).timeout
+					await get_tree().create_timer(1.0 / Global.game_speed).timeout
 					# Display the battler's uniqe death text:
 					SignalBus.display_text.emit(battler.defeatedText)
 					# Wait until player closes text window:
@@ -372,16 +372,6 @@ func _process(_delta: float) -> void:
 ## Plays a UI sound.
 func on_button_focus_changed() -> void:
 	Audio.btn_mov.play()
-
-func _on_cancel_button_pressed() -> void:
-	Audio.btn_pressed.play()
-	Input.action_press("ui_cancel")
-
-	# This tells the Battle scene that we lost, triggering the game over screen
-	# and returning us to the main menu via "uid://0xc8hpp1566k"
-	for button: Button in %ButtonContainer.get_children():
-			button.hide()
-	SignalBus.battle_lost.emit()
 
 func on_battle_lost() -> void:
 	# 1. Hide the entire UI container for this character

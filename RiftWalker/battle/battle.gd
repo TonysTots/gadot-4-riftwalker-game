@@ -220,10 +220,10 @@ func _on_settings_button_pressed() -> void:
 
 # Define what happens when the player confirms "End Run"
 func _on_end_run_requested() -> void:
-	on_battle_lost()
+	SignalBus.battle_lost.emit()
 
 func _on_settings_closed() -> void:
-		pass
+	pass
 
 func setup_button_sounds(button: Button) -> void:
 	button.focus_entered.connect(func(): Audio.btn_mov.play())
