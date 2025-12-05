@@ -118,6 +118,9 @@ func _ready() -> void:
 	for button: Button in %ButtonContainer.get_children():
 		button.mouse_entered.connect(func() -> void:
 			button.grab_focus())
+		
+		if not button.focus_entered.is_connected(on_button_focus_changed):
+			button.focus_entered.connect(on_button_focus_changed)
 
 ## This method checks if the user has accidentally put an abstract class resource
 ## into one of the [AllyAction] lists.
@@ -363,8 +366,8 @@ func damage_actions(battler: Battler, isMagic: bool) -> void:
 
 ## Updates health and magic points labels.
 func _process(_delta: float) -> void:
-	health_label.text = "Health: " + str(health)
-	magic_points_label.text = "Magic points: " + str(magicPoints)
+	health_label.text = "HP: " + str(health)
+	magic_points_label.text = "MP: " + str(magicPoints)
 
 ## Plays a UI sound.
 func on_button_focus_changed() -> void:
@@ -375,6 +378,7 @@ func _on_cancel_button_pressed() -> void:
 	Input.action_press("ui_cancel")
 
 func _on_flee_button_pressed() -> void:
+	Audio.btn_pressed.play()
 	# This tells the Battle scene that we lost, triggering the game over screen
 	# and returning us to the main menu via "uid://0xc8hpp1566k"
 	for button: Button in %ButtonContainer.get_children():

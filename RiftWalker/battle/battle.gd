@@ -10,6 +10,8 @@ var battlersSortedSpeed: Array
 
 const ALLY_BATTLER = preload("res://ally_battler/ally_battler.tscn")
 const ENEMY_BATTLER = preload("res://enemy_battler/enemy_battler.tscn")
+const SETTINGS_SCENE = preload("res://UI/settings_menu.tscn")
+var settings_instance: CanvasLayer = null
 
 func _ready() -> void:
 	# Load battle data:
@@ -25,6 +27,8 @@ func _ready() -> void:
 	load_battlers(battleData.allies, ALLY_BATTLER, $AllySpawnCircle)
 	# Load enemies:
 	load_battlers(battleData.enemies, ENEMY_BATTLER, $EnemySpawnCircle)
+	%SettingsButton.pressed.connect(_on_settings_button_pressed)
+	setup_button_sounds(%SettingsButton)
 	SignalBus.display_text.connect(display_text)
 	SignalBus.cursor_come_to_me.connect(on_cursor_come_to_me)
 	SignalBus.battle_won.connect(on_battle_won)
@@ -75,6 +79,10 @@ func load_battlers(battlers: Array, battlerFile: PackedScene, circle: Marker2D) 
 			allyScene.global_position = circle.get_node("SpawnPoint").global_position
 
 func _input(event: InputEvent) -> void:
+	# Ignore input if the settings menu is currently open
+	if settings_instance != null and settings_instance.visible:
+		return
+
 	var btn_clicked: bool = event.is_action_pressed("ui_accept") or event.is_action_pressed("left_click")
 	if btn_clicked and text_window.visible:
 		text_window.hide()
@@ -170,3 +178,20 @@ func on_battle_lost() -> void:
 	ScreenFade.fade_into_black()
 	await get_tree().create_timer(0.5).timeout
 	get_tree().change_scene_to_file("uid://0xc8hpp1566k")
+
+func _on_settings_button_pressed() -> void:
+	Audio.btn_pressed.play()
+	if settings_instance == null:
+		settings_instance = SETTINGS_SCENE.instantiate()
+		add_child(settings_instance)
+		settings_instance.closed.connect(_on_settings_closed)
+	
+	settings_instance.show()
+	%SettingsButton.release_focus()
+
+func _on_settings_closed() -> void:
+		pass
+
+func setup_button_sounds(button: Button) -> void:
+	button.focus_entered.connect(func(): Audio.btn_mov.play())
+	button.mouse_entered.connect(func(): Audio.btn_mov.play())

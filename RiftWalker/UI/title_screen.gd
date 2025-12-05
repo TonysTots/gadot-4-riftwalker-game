@@ -24,8 +24,13 @@ func _ready() -> void:
 			index = newIndex
 	)
 	SignalBus.selected_label.connect(begin_battle)
+	
+	setup_button_sounds(%StartGameButton)
+	setup_button_sounds(%SettingsButton)
+	setup_button_sounds(%QuitButton)
+	
 	ScreenFade.fade_into_game()
-	$VBoxContainer/StartGameButton.grab_focus()
+	%StartGameButton.grab_focus()
 	
 	# Load battles from disk:
 	var battlePaths: PackedStringArray = DirAccess.get_files_at("res://battle_data/")
@@ -43,7 +48,8 @@ func _ready() -> void:
 	#Begin selecting battle:
 	index = 0
 	
-	$VBoxContainer/SettingsButton.pressed.connect(_on_settings_button_pressed)
+	%StartGameButton.pressed.connect(_on_start_game_button_pressed)
+	%SettingsButton.pressed.connect(_on_settings_button_pressed)
 
 func begin_battle() -> void:
 	Global.battle = battles[index]
@@ -60,15 +66,14 @@ func _input(event: InputEvent) -> void:
 		elif event.is_action_pressed("ui_accept"):
 			begin_battle()
 
-func _on_view_battles_button_pressed() -> void:
+func _on_start_game_button_pressed() -> void:
+	Audio.btn_pressed.play()
 	ui_box.show()
 	isSelecting = true
-	$VBoxContainer/StartGameButton.release_focus()
-
-func _on_quit_button_pressed() -> void:
-	get_tree().quit()
+	%StartGameButton.release_focus()
 
 func _on_settings_button_pressed() -> void:
+	Audio.btn_pressed.play()
 	if settings_instance == null:
 		settings_instance = SETTINGS_SCENE.instantiate()
 		add_child(settings_instance)
@@ -76,7 +81,17 @@ func _on_settings_button_pressed() -> void:
 		settings_instance.closed.connect(_on_settings_closed)
 	
 	settings_instance.show()
-	$VBoxContainer/SettingsButton.release_focus()
+	%StartGameButton.release_focus()
 
 func _on_settings_closed() -> void:
-	$VBoxContainer/SettingsButton.grab_focus()
+	%StartGameButton.grab_focus()
+
+func _on_quit_button_pressed() -> void:
+	Audio.btn_pressed.play()
+	get_tree().quit()
+
+func setup_button_sounds(button: Button) -> void:
+	# Play sound when selected via Keyboard/Controller
+	button.focus_entered.connect(func(): Audio.btn_mov.play())
+	# Play sound when hovered via Mouse
+	button.mouse_entered.connect(func(): Audio.btn_mov.play())

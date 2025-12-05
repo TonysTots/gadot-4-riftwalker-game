@@ -1,9 +1,10 @@
-[gd_scene load_steps=10 format=3 uid="uid://p86u62q8dtxq"]
+[gd_scene load_steps=11 format=3 uid="uid://p86u62q8dtxq"]
 
 [ext_resource type="Script" uid="uid://cljph4wryb2nv" path="res://battle/battle.gd" id="1_k054m"]
 [ext_resource type="PackedScene" uid="uid://om1j1at88sjh" path="res://UI/text_window.tscn" id="2_finoy"]
 [ext_resource type="Texture2D" uid="uid://cd16g5n5ul1i5" path="res://assets/sprites/cursor.png" id="4_6hnvb"]
 [ext_resource type="Script" uid="uid://ca0f7megfspad" path="res://battle/debuging_circle.gd" id="4_137ac"]
+[ext_resource type="Texture2D" uid="uid://bngc4pp37q1wy" path="res://assets/sprites/wrench.png" id="5_4mnim"]
 
 [sub_resource type="Animation" id="Animation_mv724"]
 length = 0.001
@@ -142,14 +143,14 @@ volume_db = -10.0
 autoplay = true
 
 [node name="AllySpawnCircle" type="Marker2D" parent="."]
-position = Vector2(362, 183)
+position = Vector2(400, 200)
 script = ExtResource("4_137ac")
 
 [node name="SpawnPoint" type="Marker2D" parent="AllySpawnCircle"]
 position = Vector2(0, -80)
 
 [node name="EnemySpawnCircle" type="Marker2D" parent="."]
-position = Vector2(103, 186)
+position = Vector2(100, 200)
 script = ExtResource("4_137ac")
 
 [node name="SpawnPoint" type="Marker2D" parent="EnemySpawnCircle"]
@@ -165,3 +166,18 @@ libraries = {
 &"": SubResource("AnimationLibrary_qkjp5")
 }
 autoplay = "point_at_ally"
+
+[node name="UI_Layer" type="CanvasLayer" parent="."]
+
+[node name="SettingsButton" type="Button" parent="UI_Layer"]
+unique_name_in_owner = true
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -51.0
+offset_top = 5.0
+offset_right = -6.0
+offset_bottom = 50.0
+grow_horizontal = 0
+icon = ExtResource("5_4mnim")
+expand_icon = true

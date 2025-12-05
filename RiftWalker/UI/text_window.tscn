@@ -3,11 +3,12 @@
 [ext_resource type="Texture2D" uid="uid://bkx22jvnlshd0" path="res://UI/Border EB.png" id="1_t6a2q"]
 
 [node name="UIBox" type="NinePatchRect"]
-anchors_preset = -1
+custom_minimum_size = Vector2(0, 40)
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 0.225
-offset_bottom = 7.1
+offset_bottom = 10.0
 grow_horizontal = 2
+size_flags_vertical = 0
 texture = ExtResource("1_t6a2q")
 patch_margin_left = 5
 patch_margin_top = 5
@@ -15,16 +16,18 @@ patch_margin_right = 5
 patch_margin_bottom = 5
 
 [node name="Label" type="Label" parent="."]
+custom_minimum_size = Vector2(550, 30)
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.038
-anchor_top = 0.225
-anchor_right = 0.965
-anchor_bottom = 0.737
-offset_left = -7.888
-offset_top = -6.0
-offset_right = 6.15997
-offset_bottom = 7.04
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -0.5
+offset_top = -4.0
+offset_right = 0.5
+offset_bottom = 4.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 8
+vertical_alignment = 1

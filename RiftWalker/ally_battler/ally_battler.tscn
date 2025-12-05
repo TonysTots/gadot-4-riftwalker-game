@@ -8,17 +8,17 @@
 [ext_resource type="Script" uid="uid://bjexfmfiudkr4" path="res://ally_battler/magic_decider.gd" id="8_w5rui"]
 [ext_resource type="Script" uid="uid://cv280mcey2mux" path="res://ally_battler/item_decider.gd" id="9_ycavy"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_384cv"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s0x1t"]
 bg_color = Color(3.08037e-06, 0.71182, 0.456897, 1)
 
 [sub_resource type="Theme" id="Theme_8ll6s"]
-ProgressBar/styles/fill = SubResource("StyleBoxFlat_384cv")
+ProgressBar/styles/fill = SubResource("StyleBoxFlat_s0x1t")
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tnb7l"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_14ci8"]
 bg_color = Color(0, 0.678801, 0.73878, 1)
 
 [sub_resource type="Theme" id="Theme_xeiyl"]
-ProgressBar/styles/fill = SubResource("StyleBoxFlat_tnb7l")
+ProgressBar/styles/fill = SubResource("StyleBoxFlat_14ci8")
 
 [node name="AllyBattler" groups=["allies"] instance=ExtResource("1_hax40")]
 script = ExtResource("2_r36vg")
@@ -84,11 +84,12 @@ mouse_filter = 1
 text = "Flee"
 
 [node name="SelectionWindow" parent="UI/Control" index="1" instance=ExtResource("6_kq74v")]
-visible = false
+custom_minimum_size = Vector2(220, 40)
 layout_mode = 1
-anchor_left = 0.561
+anchors_preset = 11
+anchor_left = 1.0
 anchor_bottom = 1.0
-offset_left = -0.136017
+offset_left = -10.0
 offset_bottom = 0.0
 grow_horizontal = 0
 grow_vertical = 2
@@ -137,10 +138,23 @@ parent = NodePath("..")
 script = ExtResource("9_ycavy")
 parent = NodePath("..")
 
+[node name="HealthLabel" parent="VBoxContainer" index="0"]
+text = "HP"
+
 [node name="HealthBar" type="ProgressBar" parent="VBoxContainer" index="1"]
 layout_mode = 2
 theme = SubResource("Theme_8ll6s")
 show_percentage = false
+
+[node name="MagicPointsLabel" type="Label" parent="VBoxContainer" index="2"]
+unique_name_in_owner = true
+process_mode = 3
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_constants/shadow_outline_size = 2
+theme_override_font_sizes/font_size = 8
+text = "MP"
 
 [node name="MagicBar" type="ProgressBar" parent="VBoxContainer" index="3"]
 layout_mode = 2

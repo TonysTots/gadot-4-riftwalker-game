@@ -164,6 +164,7 @@ func check_if_ready() -> void:
 		%StartButton.grab_focus()
 
 func _on_start_battle_pressed() -> void:
+	Audio.btn_pressed.play()
 	Global.pick_new_battle()
 	get_tree().change_scene_to_file(BATTLE_SCENE_PATH)
 

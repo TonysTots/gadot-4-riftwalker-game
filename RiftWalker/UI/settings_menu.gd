@@ -19,6 +19,11 @@ func _ready() -> void:
 	volume_slider.value_changed.connect(_on_volume_changed)
 	fullscreen_check.toggled.connect(_on_fullscreen_toggled)
 	$PanelContainer/VBoxContainer/BackButton.pressed.connect(_on_back_pressed)
+	
+	var back_btn = $PanelContainer/VBoxContainer/BackButton
+	
+	back_btn.mouse_entered.connect(func(): Audio.btn_mov.play())
+	back_btn.focus_entered.connect(func(): Audio.btn_mov.play())
 
 func _on_volume_changed(value: float) -> void:
 	# Convert linear value (0 to 1) to Decibels
@@ -32,5 +37,6 @@ func _on_fullscreen_toggled(toggled_on: bool) -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 
 func _on_back_pressed() -> void:
+	Audio.btn_pressed.play()
 	hide()
 	closed.emit()

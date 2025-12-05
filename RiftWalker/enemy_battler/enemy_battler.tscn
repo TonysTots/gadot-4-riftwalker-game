@@ -1,7 +1,13 @@
-[gd_scene load_steps=3 format=3 uid="uid://df2sj4mwc2nnh"]
+[gd_scene load_steps=5 format=3 uid="uid://df2sj4mwc2nnh"]
 
 [ext_resource type="PackedScene" uid="uid://skjtio160esb" path="res://abstract_battler/battler.tscn" id="1_a2tly"]
 [ext_resource type="Script" uid="uid://dn5bxsnnijsaw" path="res://enemy_battler/enemy_battler.gd" id="2_8y5u6"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_384cv"]
+bg_color = Color(3.08037e-06, 0.71182, 0.456897, 1)
+
+[sub_resource type="Theme" id="Theme_uhnwk"]
+ProgressBar/styles/fill = SubResource("StyleBoxFlat_384cv")
 
 [node name="EnemyBattler" groups=["enemies"] instance=ExtResource("1_a2tly")]
 script = ExtResource("2_8y5u6")
@@ -11,10 +17,12 @@ stats = null
 position = Vector2(51, 44)
 
 [node name="HealthLabel" parent="VBoxContainer" index="0"]
-visible = false
+text = "HP"
 
-[node name="MagicPointsLabel" parent="VBoxContainer" index="1"]
-visible = false
+[node name="HealthBar" type="ProgressBar" parent="VBoxContainer" index="1"]
+layout_mode = 2
+theme = SubResource("Theme_uhnwk")
+show_percentage = false
 
 [node name="NameLabel" parent="VBoxContainer" index="2"]
 theme_override_constants/outline_size = 4

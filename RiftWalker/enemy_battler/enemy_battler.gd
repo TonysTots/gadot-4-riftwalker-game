@@ -23,11 +23,22 @@ var random: RandomNumberGenerator
 var actionToPerform: EnemyAction
 var targetBattlers: Array[Battler]
 
+@onready var health_bar: ProgressBar = $VBoxContainer/HealthBar
+@onready var health_label: Label = %HealthLabel
+
 # Defending stuff:
 var isDefending: bool = false
 var defendAmount: int
 
-@onready var health: int = stats.health
+@onready var health: int = stats.health:
+	set(val):
+		health = val
+		
+		# Update UI whenever health changes
+		if health_label:
+			health_label.text = "Health: " + str(health)
+		if health_bar:
+			health_bar.value = health
 @onready var strength: int = stats.strength
 @onready var magicStrength: int = stats.magicStrength
 @onready var defense: int = stats.defense
@@ -46,6 +57,13 @@ func _ready() -> void:
 	random = RandomNumberGenerator.new()
 	for action: EnemyAction in actions:
 		actionChances.append(action.enemyActionChance)
+	
+	if health_bar:
+		health_bar.max_value = health
+		health_bar.value = health
+		health_bar.show_percentage = false
+	self.health = stats.health
+	
 	# Load SpriteFrames:
 	animated_sprite_2d.sprite_frames = stats.spriteFrames
 	animated_sprite_2d.play("idle")
