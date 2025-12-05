@@ -9,6 +9,7 @@ script = ExtResource("2_cqxsc")
 actionTargetType = 1
 healthAmount = 60
 icon = ExtResource("1_xm1c3")
+price = 1000
 actionText = "released healing magic into the battlefield !"
 actionName = "Mega Bottle"
 sound = ExtResource("3_fbscr")

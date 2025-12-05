@@ -20,8 +20,6 @@ class_name AllyBattler extends Battler
 @onready var magic_button: Button = %MagicButton
 ## Displays list of avalible items when clicked.
 @onready var item_button: Button = %ItemButton
-## Exits the current battle when selected.
-@onready var flee_button: Button = %FleeButton
 ## handles the defense stat.
 @onready var defending_manager: Node = $DefendingDecider_Manager
 ## Ally's health bar.
@@ -114,6 +112,8 @@ func _ready() -> void:
 	animated_sprite_2d.offset += stats.offset
 	#init other stuff:
 	opponents = "enemies"
+	
+	SignalBus.battle_lost.connect(on_battle_lost)
 	
 	for button: Button in %ButtonContainer.get_children():
 		button.mouse_entered.connect(func() -> void:
@@ -377,10 +377,23 @@ func _on_cancel_button_pressed() -> void:
 	Audio.btn_pressed.play()
 	Input.action_press("ui_cancel")
 
-func _on_flee_button_pressed() -> void:
-	Audio.btn_pressed.play()
 	# This tells the Battle scene that we lost, triggering the game over screen
 	# and returning us to the main menu via "uid://0xc8hpp1566k"
 	for button: Button in %ButtonContainer.get_children():
 			button.hide()
 	SignalBus.battle_lost.emit()
+
+func on_battle_lost() -> void:
+	# 1. Hide the entire UI container for this character
+	if control:
+		control.hide()
+	
+	# 2. Hide specific containers just to be safe
+	if button_container:
+		button_container.hide()
+	if selection_window:
+		selection_window.hide()
+
+	# 3. Stop this battler from accepting any more inputs (Prevent clicking)
+	set_process_input(false)
+	set_process_unhandled_input(false)

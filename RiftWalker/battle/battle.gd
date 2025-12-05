@@ -208,9 +208,19 @@ func _on_settings_button_pressed() -> void:
 		settings_instance = SETTINGS_SCENE.instantiate()
 		add_child(settings_instance)
 		settings_instance.closed.connect(_on_settings_closed)
+		
+		# --- NEW: Connect the End Run signal ---
+		settings_instance.end_run_requested.connect(_on_end_run_requested)
+	
+	# --- NEW: Show the End Run button since we are in battle ---
+	settings_instance.enable_battle_mode()
 	
 	settings_instance.show()
 	%SettingsButton.release_focus()
+
+# Define what happens when the player confirms "End Run"
+func _on_end_run_requested() -> void:
+	on_battle_lost()
 
 func _on_settings_closed() -> void:
 		pass

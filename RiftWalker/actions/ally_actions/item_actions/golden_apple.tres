@@ -8,6 +8,7 @@
 script = ExtResource("1_mucli")
 healthAmount = 80
 icon = ExtResource("1_1rooh")
+price = 250
 actionText = "took out the shiny apple !"
 actionName = "Golden apple"
 sound = ExtResource("2_utdi0")
