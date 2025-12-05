@@ -36,7 +36,7 @@ var defendAmount: int
 		
 		# Update UI whenever health changes
 		if health_label:
-			health_label.text = "Health: " + str(health)
+			health_label.text = "HP: " + str(health)
 		if health_bar:
 			health_bar.value = health
 @onready var strength: int = stats.strength

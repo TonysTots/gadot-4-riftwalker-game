@@ -97,8 +97,8 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Quit"
 
-[node name="UIBox" parent="." instance=ExtResource("3_6g7fu")]
-visible = false
+[node name="ChooseBattle" parent="." instance=ExtResource("3_6g7fu")]
+anchors_preset = -1
 anchor_left = 0.266
 anchor_top = 0.071
 anchor_right = 0.627
@@ -108,7 +108,8 @@ offset_top = -0.00400162
 offset_right = -0.151978
 offset_bottom = -0.00799561
 
-[node name="LabelContainer" type="VBoxContainer" parent="UIBox"]
+[node name="BattleList" type="VBoxContainer" parent="ChooseBattle"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.191
@@ -122,8 +123,9 @@ offset_bottom = 0.0440063
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="UIBox" parent="UIBox" instance=ExtResource("3_6g7fu")]
+[node name="UIBox" parent="ChooseBattle" instance=ExtResource("3_6g7fu")]
 layout_mode = 1
+anchors_preset = -1
 anchor_left = 1.122
 anchor_top = 0.053
 anchor_right = 1.865
@@ -134,7 +136,7 @@ offset_right = 0.0799866
 offset_bottom = 0.0559959
 grow_horizontal = 1
 
-[node name="InstructionsLabel" type="Label" parent="UIBox/UIBox"]
+[node name="InstructionsLabel" type="Label" parent="ChooseBattle/UIBox"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.111
@@ -147,7 +149,25 @@ offset_bottom = 4.08
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 8
-text = "Choose a battle!"
+text = "Choose a 
+starting battle!"
+
+[node name="BackButton" type="Button" parent="ChooseBattle"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -52.0
+offset_top = -31.0
+offset_right = 52.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 8
+text = "Return"
 
 [node name="Music" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_816ia")

@@ -65,4 +65,4 @@ text = "Full Screen"
 
 [node name="BackButton" type="Button" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
-text = "Back"
+text = "Return"

@@ -105,8 +105,8 @@ func _on_upgrade_clicked(stats: AllyStats, stat_name: String, column_vbox: VBoxC
 	# 2. Visual Feedback
 	sprite.play("attack")
 	# Reset to idle after animation finishes
-	await sprite.animation_finished
-	sprite.play("idle")
+	if not sprite.animation_finished.is_connected(_on_sprite_animation_finished):
+		sprite.animation_finished.connect(_on_sprite_animation_finished.bind(sprite), CONNECT_ONE_SHOT)
 	
 	# 3. Lock this column
 	for child in column_vbox.get_children():
@@ -167,6 +167,9 @@ func _on_start_battle_pressed() -> void:
 	Audio.btn_pressed.play()
 	Global.pick_new_battle()
 	get_tree().change_scene_to_file(BATTLE_SCENE_PATH)
+
+func _on_sprite_animation_finished(sprite: AnimatedSprite2D) -> void:
+	sprite.play("idle")
 
 # -------------------------------------------------------------------------
 # STAT PREVIEW HELPERS
