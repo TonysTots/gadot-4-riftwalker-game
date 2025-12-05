@@ -4,6 +4,7 @@ extends Node
 @onready var text_window: PanelContainer = $TextWindow
 @onready var text_label: Label = $TextWindow/Label
 @onready var battle_music: AudioStreamPlayer = $BattleMusic
+@onready var round_label: Label = %RoundLabel
 
 @export var battleData: BattleData
 var battlersSortedSpeed: Array
@@ -34,6 +35,9 @@ func _ready() -> void:
 	SignalBus.battle_won.connect(on_battle_won)
 	SignalBus.battle_lost.connect(on_battle_lost)
 	ScreenFade.fade_into_game()
+	
+	round_label.text = "Round " + str(Global.current_round)
+	
 	rename_enemies()
 	let_battlers_decide_actions()
 
@@ -66,7 +70,29 @@ func rename_enemies() -> void:
 func load_battlers(battlers: Array, battlerFile: PackedScene, circle: Marker2D) -> void:
 	for i: int in range(len(battlers)):
 		var allyScene: Battler = battlerFile.instantiate()
-		allyScene.stats = battlers[i]
+		
+		# --- MODIFIED: Stats Scaling Logic ---
+		# 1. Duplicate the stats so we don't modify the original resource file
+		var stats = battlers[i].duplicate()
+		
+		# 2. Check if it's an enemy (only enemies should scale)
+		if stats is EnemyStats:
+			
+			# Base 100% + (5% * (Round-1)^2)
+			var multiplier: float = 1.0 + (pow(Global.current_round - 1, 2) * 0.05)
+			
+			# Apply to stats
+			stats.health = int(stats.health * multiplier)
+			stats.strength = int(stats.strength * multiplier)
+			stats.magicStrength = int(stats.magicStrength * multiplier)
+			
+			# Optional: Increase Reward (XP/Gold) logic is handled separately in calculate_loot, 
+			# but since calculate_loot reads these new stats, rewards will naturally scale too!
+		
+		# 3. Assign the modified stats
+		allyScene.stats = stats
+		# -------------------------------------
+		
 		$Battlers.add_child(allyScene)
 		var all: int = battlers.size()
 		@warning_ignore("integer_division")
@@ -146,11 +172,20 @@ func on_cursor_come_to_me(my_position: Vector2, is_ally: bool) -> void:
 # --- REWARD CALCULATION ---
 func calculate_loot() -> int:
 	var total_reward: int = 0
-	# Iterate over the enemy stats in the battle data to calculate reward
+	
+	# Calculate the difficulty multiplier for the CURRENT round
+	# (We use the same formula from load_battlers)
+	var multiplier: float = 1.0 + (pow(Global.current_round - 1, 2) * 0.05)
+	
+	# Iterate over the enemy stats in the battle data
 	for enemy_stats: EnemyStats in battleData.enemies:
+		# Apply the multiplier to the base stats locally
+		var scaled_health = enemy_stats.health * multiplier
+		var scaled_strength = enemy_stats.strength * multiplier
+		var scaled_magic = enemy_stats.magicStrength * multiplier
+		
 		# Formula: 10% of HP + 20% of Strength + 20% of Magic Strength
-		# Example: 120 HP, 50 Str = 12 + 10 = 22 coins per enemy
-		var coin_value = (enemy_stats.health * 0.1) + (enemy_stats.strength * 0.2) + (enemy_stats.magicStrength * 0.2)
+		var coin_value = (scaled_health * 0.1) + (scaled_strength * 0.2) + (scaled_magic * 0.2)
 		total_reward += int(coin_value)
 	
 	# Minimum 10 coins just in case
@@ -159,10 +194,12 @@ func calculate_loot() -> int:
 func on_battle_won() -> void:
 	$Cursor/AnimationPlayer.play("fade")
 	
-	# 1. Calculate Rewards
+	
+	# 1. Calculate Rewards (Use CURRENT round difficulty)
 	var coins_earned = calculate_loot()
 	Global.coins += coins_earned
-	Global.save_game() # Save immediately
+	Global.current_round += 1
+	Global.save_game()
 	
 	# 2. Display Rewards Pop-up
 	var reward_text = "Battle Won!\n\nLoot Found:\n" + str(coins_earned) + " Coins"
@@ -196,6 +233,10 @@ func on_battle_lost() -> void:
 	$Cursor/AnimationPlayer.play("fade")
 	SignalBus.display_text.emit("Battle lost...")
 	Audio.lost.play()
+	
+	Global.current_round = 1
+	Global.save_game()
+	
 	reset_stats()
 	await SignalBus.text_window_closed
 	ScreenFade.fade_into_black()

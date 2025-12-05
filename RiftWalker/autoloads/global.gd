@@ -8,6 +8,8 @@ var coins: int = 0
 
 var game_speed: float = 1.0
 
+var current_round: int = 1
+
 # SAVE SYSTEM CONSTANTS
 const SAVE_PATH = "user://savegame.save"
 
@@ -34,7 +36,8 @@ func save_game() -> void:
 	# --- NEW: Save fast_mode ---
 	var data = { 
 		"coins": coins,
-		"game_speed": game_speed
+		"game_speed": game_speed,
+		"current_round": current_round
 	}
 	file.store_string(JSON.stringify(data))
 
@@ -54,3 +57,6 @@ func load_game() -> void:
 		# --- NEW: Load game_speed ---
 		if data.has("game_speed"):
 			game_speed = data["game_speed"]
+		# --- NEW: Load round ---
+		if data.has("current_round"):
+			current_round = data["current_round"]
