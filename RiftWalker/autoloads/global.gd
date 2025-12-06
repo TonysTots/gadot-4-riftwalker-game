@@ -60,3 +60,11 @@ func load_game() -> void:
 		# --- NEW: Load round ---
 		if data.has("current_round"):
 			current_round = data["current_round"]
+
+# Returns the difficulty multiplier for the current round.
+# Round 1 = 1.0, Round 2 = 1.05, Round 10 = 5.05 (approx)
+func get_current_difficulty_multiplier() -> float:
+	if current_round <= 1:
+		return 1.0
+	return 1.0 + (pow(current_round - 1, 2) * 0.05)
+	

@@ -145,6 +145,7 @@ func _on_confirm_buy(buyer: AllyStats) -> void:
 		
 		# Feedback
 		Audio.btn_pressed.play() 
+		Audio.purchase.play()
 		Global.save_game()
 		update_ui()
 		
@@ -155,6 +156,7 @@ func _on_confirm_buy(buyer: AllyStats) -> void:
 	else:
 		# Can't afford
 		print("Not enough coins!")
+		Audio.denied.play()
 		# You could play an error sound here: Audio.error.play()
 
 func _on_cancel_popup_pressed() -> void:

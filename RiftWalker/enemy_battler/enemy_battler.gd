@@ -43,16 +43,15 @@ var defendAmount: int
 @onready var magicStrength: int = stats.magicStrength
 @onready var defense: int = stats.defense
 @onready var speed: int = stats.speed
-@onready var name_: String = stats.name_:
-	set(val):
-		name_ = val
-		%NameLabel.text = val
 @onready var defeatedText: String = stats.defeatedText
 @onready var animated_sprite_2d: AnimatedSprite2D = $AnimatedSprite2D
 
 func _ready() -> void:
 	check_abstract_classes()
 	randomize()
+	
+	name_ = stats.name_
+	
 	animated_sprite_2d.scale *= stats.texture_scale
 	random = RandomNumberGenerator.new()
 	for action: EnemyAction in actions:
@@ -123,7 +122,6 @@ func perform_action() -> void:
 	SignalBus.display_text.emit(name_+" "+actionToPerform.actionText)
 	#play action sound:
 	Audio.action.stream = actionToPerform.sound
-	Audio.action.play()
 	await SignalBus.text_window_closed
 	for battler: Battler in targetBattlers:
 		#Check if we're targeting a dead battler:
@@ -137,6 +135,7 @@ func perform_action() -> void:
 		if actionToPerform is EnemyAttack:
 			# Play attack animation:
 			play_anim("attack")
+			Audio.action.play()
 			# Calculate actual damage amount:
 			var damage: int = (actionToPerform.damageAmount + strength)
 			damage = damage - battler.defense
@@ -178,6 +177,7 @@ func perform_action() -> void:
 		elif actionToPerform is EnemyDefend:
 			# Play defending animation:
 			play_anim("defend")
+			Audio.action.play()
 			var defenseAmount: int = actionToPerform.defenseAmount
 			# Increase our defense stat:
 			self.defense += defenseAmount
@@ -214,6 +214,14 @@ func check_abstract_classes() -> void:
 			error += "\nMake the action inherit \"EnemyAttack\" or \"EnemyDefend\"."
 			var formated := error % [path_, class_]
 			assert(false, formated)
+
+# Override the parent setter to also update the UI Label
+func _set_name(value: String) -> void:
+	super._set_name(value) # Call the parent function to store the string
+	
+	# Update the visual label if it exists
+	if %NameLabel:
+		%NameLabel.text = value
 
 ## Handles the defense stat.
 func handle_defense() -> void:

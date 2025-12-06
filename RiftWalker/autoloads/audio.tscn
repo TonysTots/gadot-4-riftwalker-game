@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dxl8jjcf37amb"]
+[gd_scene load_steps=11 format=3 uid="uid://dxl8jjcf37amb"]
 
 [ext_resource type="Script" uid="uid://ct7n12jp3axqv" path="res://autoloads/audio.gd" id="1_jvds0"]
 [ext_resource type="AudioStream" uid="uid://b3660udbgk6uk" path="res://assets/SFX/Minimalist3.ogg" id="2_jn36h"]
@@ -8,6 +8,8 @@
 [ext_resource type="AudioStream" uid="uid://c5s88buiqnm2n" path="res://assets/SFX/battle_won.wav" id="5_3kdmj"]
 [ext_resource type="AudioStream" uid="uid://dxsjt7tqktxgn" path="res://assets/SFX/ally_down.wav" id="5_lccs7"]
 [ext_resource type="AudioStream" uid="uid://dc5n68k5xkyow" path="res://assets/SFX/store_bell.wav" id="8_wpklp"]
+[ext_resource type="AudioStream" uid="uid://j7ai1ivq1mgm" path="res://assets/SFX/purchase.mp3" id="9_r3jvv"]
+[ext_resource type="AudioStream" uid="uid://b3yhjswslalbg" path="res://assets/SFX/denied.mp3" id="10_iy0h7"]
 
 [node name="Audio" type="Node"]
 script = ExtResource("1_jvds0")
@@ -36,3 +38,9 @@ stream = ExtResource("5_lccs7")
 
 [node name="StoreBell" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("8_wpklp")
+
+[node name="Purchase" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_r3jvv")
+
+[node name="Denied" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("10_iy0h7")

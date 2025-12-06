@@ -23,6 +23,12 @@ var disablingStatusEffect: StatusEffect
 ## it's used in [method Battler.check_if_we_won].
 var opponents: StringName
 
+var name_: String : set = _set_name
+
+# Virtual setter (children can override this)
+func _set_name(value: String) -> void:
+	name_ = value
+
 ## Emited after the battler has chosen an action to perform.
 @warning_ignore("unused_signal")
 signal deciding_finished
@@ -82,3 +88,15 @@ func check_if_we_won() -> bool:
 	if battlers.all(is_defated):
 		return true
 	return false
+
+# The Battler handles its own pain!
+func take_damage(amount: int) -> void:
+	var actual_damage = amount
+	
+	self.health -= actual_damage
+	
+	# Visuals
+	play_anim("hurt")
+	
+	var text = name_ + " took " + str(actual_damage) + "!"
+	SignalBus.display_text.emit(text)

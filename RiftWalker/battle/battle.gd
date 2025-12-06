@@ -79,7 +79,7 @@ func load_battlers(battlers: Array, battlerFile: PackedScene, circle: Marker2D) 
 		if stats is EnemyStats:
 			
 			# Base 100% + (5% * (Round-1)^2)
-			var multiplier: float = 1.0 + (pow(Global.current_round - 1, 2) * 0.05)
+			var multiplier: float = Global.get_current_difficulty_multiplier()
 			
 			# Apply to stats
 			stats.health = int(stats.health * multiplier)
@@ -173,9 +173,7 @@ func on_cursor_come_to_me(my_position: Vector2, is_ally: bool) -> void:
 func calculate_loot() -> int:
 	var total_reward: int = 0
 	
-	# Calculate the difficulty multiplier for the CURRENT round
-	# (We use the same formula from load_battlers)
-	var multiplier: float = 1.0 + (pow(Global.current_round - 1, 2) * 0.05)
+	var multiplier: float = Global.get_current_difficulty_multiplier()
 	
 	# Iterate over the enemy stats in the battle data
 	for enemy_stats: EnemyStats in battleData.enemies:

@@ -9,7 +9,8 @@ extends Node
 @onready var won: AudioStreamPlayer = $Won
 @onready var status_effect: AudioStreamPlayer = $StatusEffect
 @onready var store_bell: AudioStreamPlayer = $StoreBell
-
+@onready var purchase: AudioStreamPlayer = $Purchase
+@onready var denied: AudioStreamPlayer = $Denied
 
 var sound_types: Dictionary = {
 	"hurt" : preload("res://assets/SFX/hurt.wav"),

@@ -66,8 +66,6 @@ var defense: int:
 ## The battler with the highest speed gets to act first.
 var speed: int:
 	get: return stats.speed
-## Display name for the Ally in battle.
-@onready var name_: String = stats.name
 ## Gets displayed when this Ally dies.
 @onready var defeatedText: String = stats.defeatedText
 
@@ -90,6 +88,9 @@ const TEXT_LABEL: PackedScene = preload("uid://cotypm82phjd3")
 func _ready() -> void:
 	$UI/Control/SelectionWindow.hide()
 	check_abstract_classes()
+	
+	name_ = stats.name
+	
 	# Show UI:
 	$UI.show()
 	# Show battler name:
@@ -163,7 +164,6 @@ func perform_action() -> void:
 	SignalBus.display_text.emit(name_+" "+actionToPerform.actionText)
 	#play action sound:
 	Audio.action.stream = actionToPerform.sound
-	Audio.action.play()
 	await SignalBus.text_window_closed
 	#region Dead battlers:
 	for battler: Battler in targetBattlers:
@@ -195,6 +195,7 @@ func perform_action() -> void:
 		if actionToPerform is Attack:
 			# Play attack animation:
 			play_anim("attack")
+			Audio.action.play()
 			damage_actions(battler, false)
 			# Wait until player closes text window:
 			await SignalBus.text_window_closed
@@ -223,6 +224,7 @@ func perform_action() -> void:
 		elif actionToPerform is Defend:
 			# Play defending animation:
 			play_anim("defend")
+			Audio.action.play()
 			var defenseAmount: int = actionToPerform.defenseAmount
 			# Increase our defense stat:
 			self.defense += defenseAmount
@@ -243,6 +245,7 @@ func perform_action() -> void:
 			if actionToPerform is OffensiveSpell:
 				# Play animation:
 				play_anim("offensive_magic")
+				Audio.action.play()
 				damage_actions(battler, true)
 				# Wait until player closes text window:
 				await SignalBus.text_window_closed
@@ -269,6 +272,7 @@ func perform_action() -> void:
 			elif actionToPerform is HealingSpell:
 				# Play aniamtion:
 				play_anim("heal_magic")
+				Audio.action.play()
 				# Calculate actual damage amount:
 				var healingAmount: int
 				@warning_ignore("integer_division")
@@ -291,6 +295,7 @@ func perform_action() -> void:
 				var effect: StatusEffect = actionToPerform.statusEffect
 				# Play aniamtion:
 				play_anim("offensive_magic")
+				Audio.action.play()
 				
 				# Disabling status effect (sleep, paralysis, ect...):
 				if effect is StatusEffect:
@@ -345,29 +350,42 @@ func perform_action() -> void:
 ## Method that calculates damage done to [EnemyBattler]s by performing
 ## [Attack]s and [OffensiveSpell]s.
 func damage_actions(battler: Battler, isMagic: bool) -> void:
-			# Calculate actual damage amount:
-			var damage: int
-			if not isMagic:
-				damage = (actionToPerform.damageAmount + strength)
-			elif isMagic:
-				damage = (actionToPerform.damageAmount + magicStrength)
-			damage = damage - battler.defense
-			# Make sure we don't deal negative damage:
-			damage = clamp(damage, 0, 9999999)
-			# Hurt the target battler:
-			battler.health -= damage
-			# Display text:
-			var text: String = battler.name_ + " took " + str(damage) + " !"
-			SignalBus.display_text.emit(text)
-			# Play SFX of target battler getting hurt:
-			Audio.play_action_sound("hurt")
-			# Play target battler hurt animation:
-			battler.play_anim("hurt")
+	# 1. Calculate potential damage
+	var damage: int
+	if not isMagic:
+		damage = (actionToPerform.damageAmount + strength)
+	else:
+		damage = (actionToPerform.damageAmount + magicStrength)
+	
+	damage = damage - battler.defense
+	damage = clamp(damage, 0, 9999999)
+	
+	# 2. Tell the target to take that damage
+	battler.take_damage(damage)
+	
+	# 3. Play the sound (Global audio is fine here, or move to Battler too)
+	Audio.play_action_sound("hurt")
 
 ## Updates health and magic points labels.
 func _process(_delta: float) -> void:
 	health_label.text = "HP: " + str(health)
 	magic_points_label.text = "MP: " + str(magicPoints)
+
+func _on_cancel_button_pressed() -> void:
+	Audio.btn_pressed.play()
+	
+	# --- NEW: Clear the previous options to prevent duplicates ---
+	for child in options_container.get_children():
+		child.queue_free()
+	
+	# 1. Hide the Selection Window (Spells/Items list)
+	selection_window.hide()
+	
+	# 2. Show the Main Action Buttons (Attack/Magic/Item)
+	button_container.show()
+	
+	# 3. Reset focus to the Attack button
+	attack_button.grab_focus()
 
 ## Plays a UI sound.
 func on_button_focus_changed() -> void:
