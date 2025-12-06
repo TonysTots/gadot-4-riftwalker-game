@@ -7,8 +7,8 @@ signal end_run_requested ## New signal to tell Battle to quit
 @onready var fullscreen_check: CheckButton = %FullScreenCheck
 @onready var speed_slider: HSlider = %GameSpeedSlider
 @onready var speed_label: Label = %GameSpeedLabel
-# --- NEW NODES ---
-# Make sure these paths match your scene exactly!
+@onready var starting_round_slider: HSlider = %StartingRoundSlider
+@onready var starting_round_label: Label = %StartingRoundLabel
 @onready var end_run_btn: Button = %EndRunButton
 @onready var confirm_popup: PanelContainer = $ConfirmationPopup
 @onready var yes_btn: Button = %YesButton
@@ -26,9 +26,13 @@ func _ready() -> void:
 	speed_slider.value = Global.game_speed
 	update_speed_label(Global.game_speed)
 	
+	starting_round_slider.value = Global.starting_round
+	update_starting_round_label(Global.starting_round)
+	
 	# --- CONNECTIONS ---
 	volume_slider.value_changed.connect(_on_volume_changed)
 	fullscreen_check.toggled.connect(_on_fullscreen_toggled)
+	starting_round_slider.value_changed.connect(_on_starting_round_changed)
 	
 	$PanelContainer/VBoxContainer/BackButton.pressed.connect(_on_back_pressed)
 	setup_hover_sounds($PanelContainer/VBoxContainer/BackButton)
@@ -50,6 +54,10 @@ func _ready() -> void:
 # Call this function when opening settings from Battle to show the button
 func enable_battle_mode() -> void:
 	end_run_btn.show()
+	if starting_round_slider:
+		starting_round_slider.hide()
+	if starting_round_label:
+		starting_round_label.hide()
 
 func _on_end_run_pressed() -> void:
 	Audio.btn_pressed.play()
@@ -73,9 +81,17 @@ func _on_speed_changed(value: float) -> void:
 	update_speed_label(value)
 	Global.save_game()
 
+func _on_starting_round_changed(value: float) -> void:
+	Global.starting_round = int(value)
+	update_starting_round_label(Global.starting_round)
+	Global.save_game()
+
 func update_speed_label(value: float) -> void:
 	speed_label.text = "Game Speed: " + str(value) + "x"
-	
+
+func update_starting_round_label(value: int) -> void:
+	starting_round_label.text = "Starting Round: " + str(value)
+
 func _on_fullscreen_toggled(toggled_on: bool) -> void:
 	if toggled_on: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	else: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)

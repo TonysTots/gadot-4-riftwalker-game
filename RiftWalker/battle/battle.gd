@@ -232,7 +232,8 @@ func on_battle_lost() -> void:
 	SignalBus.display_text.emit("Battle lost...")
 	Audio.lost.play()
 	
-	Global.current_round = 1
+	Global.current_round = Global.starting_round
+	
 	Global.save_game()
 	
 	reset_stats()

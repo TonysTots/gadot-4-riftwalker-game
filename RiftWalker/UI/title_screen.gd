@@ -65,10 +65,25 @@ func _ready() -> void:
 
 func begin_battle() -> void:
 	Audio.btn_pressed.play()
+	
+	# Initialize round
+	Global.current_round = Global.starting_round
 	Global.battle = battles[index]
+	
 	ScreenFade.fade_into_black()
 	await get_tree().create_timer(0.5).timeout
-	get_tree().change_scene_to_file("uid://p86u62q8dtxq")
+	
+	# Check for Starting Round Bonus
+	if Global.starting_round > 1:
+		# Give points equal to skipped rounds
+		Global.upgrade_points_pending = Global.starting_round - 1
+		
+		# Go to Upgrade Menu first!
+		get_tree().change_scene_to_file("res://UI/upgrade_menu.tscn")
+	else:
+		# Standard Start (Round 1)
+		Global.upgrade_points_pending = 1
+		get_tree().change_scene_to_file("uid://p86u62q8dtxq")
 
 func _input(event: InputEvent) -> void:
 	if isSelecting:

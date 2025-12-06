@@ -133,7 +133,7 @@ func check_abstract_classes() -> void:
 			pass
 		# This is an abstract class; Throw error:
 		else:
-			@warning_ignore("shadowed_variable")
+			@warning_ignore("shadowed_variable", "shadowed_variable_base_class")
 			var name_ := action.actionName
 			var class_ = action.get_script().get_global_name()
 			var path_ := action.resource_path

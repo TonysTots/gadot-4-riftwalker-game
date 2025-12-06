@@ -10,6 +10,10 @@ var game_speed: float = 1.0
 
 var current_round: int = 1
 
+var starting_round: int = 1
+
+var upgrade_points_pending: int = 1
+
 # SAVE SYSTEM CONSTANTS
 const SAVE_PATH = "user://savegame.save"
 
@@ -33,11 +37,11 @@ func pick_new_battle() -> void:
 
 func save_game() -> void:
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	# --- NEW: Save fast_mode ---
 	var data = { 
 		"coins": coins,
 		"game_speed": game_speed,
-		"current_round": current_round
+		"current_round": current_round,
+		"starting_round": starting_round # --- NEW: Save preference ---
 	}
 	file.store_string(JSON.stringify(data))
 
@@ -60,6 +64,8 @@ func load_game() -> void:
 		# --- NEW: Load round ---
 		if data.has("current_round"):
 			current_round = data["current_round"]
+		if data.has("starting_round"): 
+			starting_round = data["starting_round"]
 
 # Returns the difficulty multiplier for the current round.
 # Round 1 = 1.0, Round 2 = 1.05, Round 10 = 5.05 (approx)
