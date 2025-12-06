@@ -294,9 +294,10 @@ func _on_sprite_anim_done(sprite: AnimatedSprite2D) -> void:
 
 func calculate_derived_stats(b: int, m: int, s: int) -> Dictionary:
 	return {
-		"hp": (b + s) * 5, # Matches AllyStats formulas
+		"hp": (b + s) * 5,
 		"mp": (m + s) * 2,
 		"atk": (b + m) * 2,
+		"mag": (m + s) * 2, # --- NEW: Magic Strength Calculation ---
 		"def": b + s,
 		"spd": b + m
 	}
@@ -306,6 +307,10 @@ func format_stats_text(curr: Dictionary, fut: Dictionary) -> String:
 	txt += "HP: %s\n" % get_diff_string(curr.hp, fut.hp)
 	txt += "MP: %s\n" % get_diff_string(curr.mp, fut.mp)
 	txt += "ATK: %s\n" % get_diff_string(curr.atk, fut.atk)
+	
+	# --- NEW: Magic Strength Display ---
+	txt += "MAG: %s\n" % get_diff_string(curr.mag, fut.mag)
+	
 	txt += "DEF: %s\n" % get_diff_string(curr.def, fut.def)
 	txt += "SPD: %s" % get_diff_string(curr.spd, fut.spd)
 	txt += "[/font_size][/center]"

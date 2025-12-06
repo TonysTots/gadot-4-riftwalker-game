@@ -8,8 +8,8 @@
 [ext_resource type="Resource" uid="uid://bbwdd2xv1bf1i" path="res://stats/ally_stats/blake.tres" id="6_5sm4a"]
 [ext_resource type="Resource" uid="uid://cghwgxhnra2og" path="res://stats/ally_stats/michael.tres" id="7_4shb1"]
 [ext_resource type="Resource" uid="uid://cnxgagq22hko" path="res://stats/ally_stats/mitchell.tres" id="8_j3uti"]
+[ext_resource type="Texture2D" uid="uid://41xsryorgp3u" path="res://assets/sprites/wall.svg" id="9_cjr8l"]
 [ext_resource type="Texture2D" uid="uid://bkx22jvnlshd0" path="res://assets/sprites/Border EB.png" id="9_hnnum"]
-[ext_resource type="Texture2D" uid="uid://c8pxkbc12nspu" path="res://assets/sprites/shop.jpg" id="9_kmyys"]
 [ext_resource type="AudioStream" uid="uid://chdrtoavl8uro" path="res://assets/music/shop_music.mp3" id="11_cjr8l"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hnnum"]
@@ -36,7 +36,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("9_kmyys")
+texture = ExtResource("9_cjr8l")
+expand_mode = 5
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 anchors_preset = 8
@@ -68,6 +69,15 @@ horizontal_alignment = 1
 [node name="Coins" type="Label" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+horizontal_alignment = 1
+
+[node name="InsufficientFunds" type="Label" parent="PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+text = "Insufficient Funds!"
+horizontal_alignment = 1
 
 [node name="ShopGrid" type="GridContainer" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true

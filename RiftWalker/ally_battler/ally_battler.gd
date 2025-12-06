@@ -43,13 +43,13 @@ class_name AllyBattler extends Battler
 			health = max_health
 		else:
 			health = value
-		health_label.text = "Health: " + str(health)
+		health_label.text = "HP: " + str(health)
 		health_bar.value = health
 ## Required for casting magic spells.
 @onready var magicPoints: int = stats.magicPoints:
 	set(value):
 		magicPoints = value
-		magic_points_label.text = "Magic points: " + str(magicPoints)
+		magic_points_label.text = "MP: " + str(magicPoints)
 		magic_bar.value = value
 ## Ally's health can't exceed this.
 var max_health: int:
