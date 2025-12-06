@@ -86,6 +86,7 @@ var targetBattlers: Array[Battler]
 const TEXT_LABEL: PackedScene = preload("uid://cotypm82phjd3")
 
 func _ready() -> void:
+	super._ready()
 	$UI/Control/SelectionWindow.hide()
 	check_abstract_classes()
 	
@@ -160,191 +161,39 @@ func decide_action() -> void:
 ## Lets the [AllyBattler] perform the [AllyAction] that they chose in
 ## [method AllyBattler.decide_action]
 func perform_action() -> void:
+	# 1. Announce the action
 	SignalBus.cursor_come_to_me.emit(self.global_position, true)
-	SignalBus.display_text.emit(name_+" "+actionToPerform.actionText)
-	#play action sound:
+	SignalBus.display_text.emit(name_ + " " + actionToPerform.actionText)
 	Audio.action.stream = actionToPerform.sound
 	await SignalBus.text_window_closed
-	#region Dead battlers:
-	for battler: Battler in targetBattlers:
-		# Check if we're targeting a dead battler:
-		if battler.isDefeated:
-			# Change the battler to another battler if the current one is dead:
-			var targetGroup: String
-			if battler is EnemyBattler:
-				targetGroup = "enemies"
-			elif battler is AllyBattler:
-				targetGroup = "allies"
-			# Change target to another battler:
-			if targetBattlers.size() == 1:
-				var battlers: Array[Battler]
-				battlers.assign(get_tree().get_nodes_in_group(targetGroup))
-				var index: int = battlers.find(battler)
-				index += 1
-				index %= battlers.size()
-				while battlers[index].isDefeated:
-					index += 1
-					index %= battlers.size()
-				battler = battlers[index]
-			# Ignore the dead battlers in group actions:
-			elif targetBattlers.size() > 1:
-				continue
-	#endregion
-		# check action type:
-		#region Attack action:
+
+	# 2. Process all targets
+	for i in range(targetBattlers.size()):
+		var target = targetBattlers[i]
+		
+		# Handle Retargeting (if target died before we could hit them)
+		if target.isDefeated:
+			target = _get_new_target_if_dead(target)
+			if target.isDefeated: continue # Could not find a new target
+		
+		# Execute the specific action logic
 		if actionToPerform is Attack:
-			# Play attack animation:
-			play_anim("attack")
-			Audio.action.play()
-			damage_actions(battler, false)
-			# Wait until player closes text window:
-			await SignalBus.text_window_closed
-			# Wait a moment:
-			await get_tree().create_timer(0.1).timeout
-			# Check if target battler died
-			if battler.health <= 0:
-				# Set the battler to the "defeated" state:
-				battler.isDefeated = true
-				# Play battler dead sound:
-				Audio.down.play()
-				# Make target battler play death aniamtion:
-				battler.play_anim("defeated")
-				#Wait till anim is done
-				await get_tree().create_timer(1.0 / Global.game_speed).timeout
-				# Display the battler's uniqe death text:
-				SignalBus.display_text.emit(battler.defeatedText)
-				# Wait until player closes text window:
-				await SignalBus.text_window_closed
-				# Check if allies won:
-				if check_if_we_won() == true:
-					SignalBus.battle_won.emit()
-					return
-				#endregion
-		#region Defend action:
+			await _perform_attack(target)
 		elif actionToPerform is Defend:
-			# Play defending animation:
-			play_anim("defend")
-			Audio.action.play()
-			var defenseAmount: int = actionToPerform.defenseAmount
-			# Increase our defense stat:
-			self.defense += defenseAmount
-			# Display text:
-			var text: String = battler.name_ + "'s defense increased by " + str(defenseAmount) + " !"
-			SignalBus.display_text.emit(text)
-			# Play SFX of self defending:
-			Audio.play_action_sound("defend")
-			# Play self defense animation:
-			battler.play_anim("defend");
-			# Wait until player closes text window:
-			await SignalBus.text_window_closed
-			# Wait a moment:
-			await get_tree().create_timer(0.1).timeout
-			#endregion
-		#region Magic action:
+			await _perform_defend(target)
 		elif actionToPerform is Spell:
-			if actionToPerform is OffensiveSpell:
-				# Play animation:
-				play_anim("offensive_magic")
-				Audio.action.play()
-				damage_actions(battler, true)
-				# Wait until player closes text window:
-				await SignalBus.text_window_closed
-				# Wait a moment:
-				await get_tree().create_timer(0.1).timeout
-				# Check if target battler died
-				if battler.health <= 0:
-					# Set the battler to the "defeated" state:
-					battler.isDefeated = true
-					# Play battler dead sound:
-					Audio.down.play()
-					# Make target battler play death aniamtion:
-					battler.play_anim("defeated")
-					#Wait till anim is done
-					await get_tree().create_timer(1.0 / Global.game_speed).timeout
-					# Display the battler's uniqe death text:
-					SignalBus.display_text.emit(battler.defeatedText)
-					# Wait until player closes text window:
-					await SignalBus.text_window_closed
-					# Check if allies won:
-					if check_if_we_won() == true:
-						SignalBus.battle_won.emit()
-						return
-			elif actionToPerform is HealingSpell:
-				# Play aniamtion:
-				play_anim("heal_magic")
-				Audio.action.play()
-				# Calculate actual damage amount:
-				var healingAmount: int
-				@warning_ignore("integer_division")
-				healingAmount = (actionToPerform.healingAmount + magicStrength / 2)
-				# heal the target ally battler:
-				battler.health += healingAmount
-				# Display text:
-				var text: String = battler.name_ + " recovered " + str(healingAmount) + " !"
-				SignalBus.display_text.emit(text)
-				# Play SFX of target battler getting healed:
-				Audio.play_action_sound("heal")
-				# Play target battler heal animation:
-				battler.play_anim("heal")
-				# Wait until player closes text window:
-				await SignalBus.text_window_closed
-				# Wait a moment:
-				await get_tree().create_timer(0.1).timeout
-			
-			elif actionToPerform is CurseSpell:
-				var effect: StatusEffect = actionToPerform.statusEffect
-				# Play aniamtion:
-				play_anim("offensive_magic")
-				Audio.action.play()
-				
-				# Disabling status effect (sleep, paralysis, ect...):
-				if effect is StatusEffect:
-					# Check if target is already inflected with a disabling status effect:
-					if battler.disablingStatusEffect != null:
-						@warning_ignore("confusable_local_declaration")
-						var text: String = battler.name_ + " already can't act !"
-						SignalBus.display_text.emit(text)
-						await SignalBus.text_window_closed
-						# Wait a moment:
-						await get_tree().create_timer(0.1).timeout
-						continue
-					# Inflect the status effect:
-					battler.disablingStatusEffect = effect.duplicate()
-					battler.isDisabled = true
-					battler.status_effect_sprite.texture = effect.sprite
-					battler.status_effect_sprite.scale = Vector2(1, 1)
-					battler.status_effect_sprite.scale *= effect.scale
-				# Display text:
-				var text: String = battler.name_ + " has been inflicted with " + effect.name_ + " !"
-				SignalBus.display_text.emit(text)
-				# Play SFX of target battler getting cursed:
-				Audio.play_action_sound("cursed")
-				# Play target battler curse animation:
-				battler.play_anim("cursed")
-				# Wait until player closes text window:
-				await SignalBus.text_window_closed
-				# Wait a moment:
-				await get_tree().create_timer(0.1).timeout
-			#endregion
-			
+			await _perform_spell(target)
 		elif actionToPerform is Item:
-			if actionToPerform is Item:
-				# heal the target ally battler:
-				battler.health += actionToPerform.healthAmount
-				# Display text:
-				var text: String = battler.name_ + " recovered " + str(actionToPerform.healthAmount) + " !"
-				SignalBus.display_text.emit(text)
-				# Play SFX of target battler getting healed:
-				Audio.play_action_sound("heal")
-				# Play target battler heal animation:
-				battler.play_anim("heal")
-				# Wait until player closes text window:
-				await SignalBus.text_window_closed
-				# Wait a moment:
-				await get_tree().create_timer(0.1).timeout
-	# Clear target battlers array:
+			await _perform_item(target)
+			
+		# Check if the battle is won after this specific action
+		if SignalBus.battle_won.get_connections().size() > 0:
+			# If we won, stop everything.
+			# (We check victory inside _handle_target_defeat)
+			if check_if_we_won(): return
+
+	# 3. Cleanup
 	targetBattlers.clear()
-	# Signal to the battle node that we're done:
 	performing_action_finished.emit()
 
 ## Method that calculates damage done to [EnemyBattler]s by performing
@@ -356,6 +205,11 @@ func damage_actions(battler: Battler, isMagic: bool) -> void:
 		damage = (actionToPerform.damageAmount + strength)
 	else:
 		damage = (actionToPerform.damageAmount + magicStrength)
+	
+	if randf() <= 0.1: # 10% Chance
+		damage *= 2
+		SignalBus.display_text.emit("CRITICAL HIT!")
+		await SignalBus.text_window_closed
 	
 	damage = damage - battler.defense
 	damage = clamp(damage, 0, 9999999)
@@ -405,3 +259,126 @@ func on_battle_lost() -> void:
 	# 3. Stop this battler from accepting any more inputs (Prevent clicking)
 	set_process_input(false)
 	set_process_unhandled_input(false)
+
+# Logic to find a living target if the original one died
+func _get_new_target_if_dead(dead_target: Battler) -> Battler:
+	var target_group = "enemies" if dead_target is EnemyBattler else "allies"
+	var candidates = get_tree().get_nodes_in_group(target_group)
+	
+	# Try to find the next living battler in the list
+	for candidate in candidates:
+		if not candidate.isDefeated:
+			return candidate
+			
+	return dead_target # Everyone is dead, return original to fail safely
+
+func _perform_attack(target: Battler) -> void:
+	play_anim("attack")
+	Audio.action.play()
+	
+	# Calculate Damage & Critical Hit
+	var damage = actionToPerform.damageAmount + strength
+	if randf() <= 0.1: # 10% Crit Chance
+		damage *= 2
+		SignalBus.display_text.emit("CRITICAL HIT!")
+		await SignalBus.text_window_closed
+	
+	_apply_damage(target, damage)
+
+func _perform_defend(target: Battler) -> void:
+	play_anim("defend")
+	Audio.action.play()
+	
+	var defenseAmount = actionToPerform.defenseAmount
+	self.defense += defenseAmount
+	
+	SignalBus.display_text.emit(target.name_ + "'s defense increased by " + str(defenseAmount) + "!")
+	Audio.play_action_sound("defend")
+	target.play_anim("defend")
+	
+	await SignalBus.text_window_closed
+	await get_tree().create_timer(0.1).timeout
+
+func _perform_spell(target: Battler) -> void:
+	if actionToPerform is OffensiveSpell:
+		play_anim("offensive_magic")
+		Audio.action.play()
+		var damage = actionToPerform.damageAmount + magicStrength
+		_apply_damage(target, damage)
+		
+	elif actionToPerform is HealingSpell:
+		play_anim("heal_magic")
+		Audio.action.play()
+		@warning_ignore("integer_division")
+		var heal_amount = actionToPerform.healingAmount + (magicStrength / 2)
+		target.health += heal_amount
+		
+		SignalBus.display_text.emit(target.name_ + " recovered " + str(heal_amount) + " HP!")
+		Audio.play_action_sound("heal")
+		target.play_anim("heal")
+		await SignalBus.text_window_closed
+		await get_tree().create_timer(0.1).timeout
+
+	elif actionToPerform is CurseSpell:
+		await _perform_curse(target)
+
+func _perform_curse(target: Battler) -> void:
+	play_anim("offensive_magic")
+	Audio.action.play()
+	
+	var effect = actionToPerform.statusEffect
+	
+	# Check Immunity
+	if target.is_immune(effect.name_):
+		SignalBus.display_text.emit(target.name_ + " resisted " + effect.name_ + "!")
+		await SignalBus.text_window_closed
+		return
+
+	# Check if already inflicted
+	if target.disablingStatusEffect != null:
+		SignalBus.display_text.emit(target.name_ + " is already disabled!")
+		await SignalBus.text_window_closed
+		return
+
+	# Apply Effect
+	target.disablingStatusEffect = effect.duplicate()
+	target.isDisabled = true
+	target.status_effect_sprite.texture = effect.sprite
+	
+	SignalBus.display_text.emit(target.name_ + " inflicted with " + effect.name_ + "!")
+	Audio.play_action_sound("cursed")
+	target.play_anim("cursed")
+	await SignalBus.text_window_closed
+
+func _perform_item(target: Battler) -> void:
+	# Add item logic here (Healing, etc.)
+	target.health += actionToPerform.healthAmount
+	SignalBus.display_text.emit(target.name_ + " recovered " + str(actionToPerform.healthAmount) + " HP!")
+	Audio.play_action_sound("heal")
+	target.play_anim("heal")
+	await SignalBus.text_window_closed
+
+# Centralized damage application and death check
+func _apply_damage(target: Battler, raw_damage: int) -> void:
+	var final_damage = clampi(raw_damage - target.defense, 0, 9999999)
+	target.take_damage(final_damage) # Battler class handles the "took damage" text
+	
+	Audio.play_action_sound("hurt")
+	# Using 'hurt' anim inside take_damage usually, but we ensure flow here:
+	await SignalBus.text_window_closed
+	await get_tree().create_timer(0.1).timeout
+	
+	if target.health <= 0:
+		await _handle_target_defeat(target)
+
+func _handle_target_defeat(target: Battler) -> void:
+	target.isDefeated = true
+	Audio.down.play()
+	target.play_anim("defeated")
+	await get_tree().create_timer(1.0 / Global.game_speed).timeout
+	
+	SignalBus.display_text.emit(target.defeatedText)
+	await SignalBus.text_window_closed
+	
+	if check_if_we_won():
+		SignalBus.battle_won.emit()

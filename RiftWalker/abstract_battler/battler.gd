@@ -1,85 +1,61 @@
 ## Abstract class that [AllyBattler] and [EnemyBattler] inherit from.
-
 class_name Battler extends Node2D
 
-## Sprite that displays an icon indicating the battler is suffering from 
-## a [StatusEffect].
 @onready var status_effect_sprite: Sprite2D = $StatusEffectSprite
-## Contains some animations.
 @onready var anim: AnimationPlayer = $AnimationPlayer
 
 # Flags:
-## indicates whether the battler is dead or alive.
 var isDefeated: bool = false
-## indicates whether the battler is suffering from a [StatusEffect]
-##  that disables them from Performing any actions.
 var isDisabled: bool = false
-
-## Status effect that prevents the battler from performing an action, 
-##  it is set to [code]null[/code] if no status effect is currently inflected.
 var disablingStatusEffect: StatusEffect
-
-## This [String] is [code]"enemies"[/code] for the allies, and [code]"allies"[/code] for the enemies, 
-## it's used in [method Battler.check_if_we_won].
 var opponents: StringName
 
 var name_: String : set = _set_name
 
-# Virtual setter (children can override this)
-func _set_name(value: String) -> void:
-	name_ = value
+# --- NEW: Immunity Tracking ---
+var status_immunities: Dictionary = {}
 
-## Emited after the battler has chosen an action to perform.
 @warning_ignore("unused_signal")
 signal deciding_finished
-## Emited after the battler has finished acting.
 @warning_ignore("unused_signal")
 signal performing_action_finished
 
 func _ready() -> void:
 	set_process(false)
+	
+	# --- Game Speed Logic ---
+	# Check if signal exists to prevent errors if SignalBus isn't fully loaded
+	if SignalBus.has_signal("game_speed_changed"):
+		SignalBus.game_speed_changed.connect(_on_game_speed_changed)
+	
+	# Apply initial speed
+	_apply_speed(Global.game_speed)
 
-## Lets the battler decide an action that they will perform when [method Battler.perform_action]
-## is called.
+func _set_name(value: String) -> void:
+	name_ = value
+
 func decide_action():
 	pass
 
-## Lets the battler perform the action that they chose in [method Battler.decide_action]
 func perform_action() -> void:
 	pass
 
-## This method decides whether the animation is meant to be played by the [AnimationPlayer]
-## or by the [AnimatedSprite2D].
 func play_anim(animationName: String) -> void:
-	# --- NEW: Use Global game_speed ---
-	var speed_mult: float = Global.game_speed
-	
 	var animPlayerAnims: Array[String] = ["heal", "cursed"]
 	
 	if animationName in animPlayerAnims:
-		# Set speed scale for AnimationPlayer
-		$AnimationPlayer.speed_scale = speed_mult
 		$AnimationPlayer.play(animationName)
 	else:
-		# Set speed scale for AnimatedSprite2D
-		$AnimatedSprite2D.speed_scale = speed_mult
 		$AnimatedSprite2D.play(animationName)
 
-## This method makes the battler play the [code]"idle"[/code] animation again after finishing
-## any other animation except for [code]"defeated"[/code].
 func _on_animated_sprite_2d_animation_finished() -> void:
 	if $AnimatedSprite2D.animation != "defeated":
 		$AnimatedSprite2D.play("idle")
 
-## This method simply frees the battler from memory if it's [code]"fade_out"[/code] animation
-## is finished.
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	if anim_name == "fade_out":
 		queue_free()
 
-## Gets called everytime a battler is defeated, The [AllyBattler]s use it to
-## check if the battle has been won, The [EnemyBattler]s use it to check if 
-## the battle has been lost.
 func check_if_we_won() -> bool:
 	var is_defated: Callable = func (battler: Battler) -> bool:
 		return battler.isDefeated
@@ -89,10 +65,10 @@ func check_if_we_won() -> bool:
 		return true
 	return false
 
-# The Battler handles its own pain!
 func take_damage(amount: int) -> void:
 	var actual_damage = amount
 	
+	# Note: 'health' is defined in child classes, so this relies on dynamic access
 	self.health -= actual_damage
 	
 	# Visuals
@@ -100,3 +76,31 @@ func take_damage(amount: int) -> void:
 	
 	var text = name_ + " took " + str(actual_damage) + "!"
 	SignalBus.display_text.emit(text)
+
+# --- SPEED UPDATE FUNCTIONS ---
+func _on_game_speed_changed(new_speed: float) -> void:
+	_apply_speed(new_speed)
+
+func _apply_speed(value: float) -> void:
+	if has_node("AnimationPlayer"):
+		$AnimationPlayer.speed_scale = value
+	if has_node("AnimatedSprite2D"):
+		$AnimatedSprite2D.speed_scale = value
+
+# --- IMMUNITY FUNCTIONS ---
+func process_immunities() -> void:
+	var keys_to_remove: Array = []
+	
+	for status_name in status_immunities.keys():
+		status_immunities[status_name] -= 1
+		if status_immunities[status_name] <= 0:
+			keys_to_remove.append(status_name)
+	
+	for k in keys_to_remove:
+		status_immunities.erase(k)
+
+func add_immunity(status_name: String, duration: int) -> void:
+	status_immunities[status_name] = duration
+
+func is_immune(status_name: String) -> bool:
+	return status_immunities.has(status_name)

@@ -6,7 +6,12 @@ var battle: BattleData
 # GLOBAL CURRENCY
 var coins: int = 0
 
-var game_speed: float = 1.0
+var game_speed: float = 1.0:
+	set(value):
+		game_speed = value
+		# Verify SignalBus exists before emitting to prevent errors during shutdown
+		if SignalBus: 
+			SignalBus.game_speed_changed.emit(value)
 
 var current_round: int = 1
 

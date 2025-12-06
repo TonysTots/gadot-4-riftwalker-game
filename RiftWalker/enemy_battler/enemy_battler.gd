@@ -47,6 +47,7 @@ var defendAmount: int
 @onready var animated_sprite_2d: AnimatedSprite2D = $AnimatedSprite2D
 
 func _ready() -> void:
+	super._ready()
 	check_abstract_classes()
 	randomize()
 	
@@ -92,114 +93,36 @@ func decide_action() -> void:
 
 func perform_action() -> void:
 	SignalBus.cursor_come_to_me.emit(self.global_position, false)
-	#region Status effect logic:
-	# Check if self is inflected with disabling status effect (sleep, paralysis, ect...):
-	if disablingStatusEffect != null:
-		# Decrement effect duration by 1 since 1 turn has passed:
-		disablingStatusEffect.effectDuration -= 1
-		# Check if status effect duration is over:
-		if disablingStatusEffect.effectDuration <= 0:
-			# Enable the battler again:
-			isDisabled = false
-			# Display text showing it's been removed:
-			SignalBus.display_text.emit(name_ + " " + disablingStatusEffect.removalText)
-			# Remove status effect:
-			disablingStatusEffect = null
-			status_effect_sprite.texture = null
-			# End turn:
-			await SignalBus.text_window_closed
-			performing_action_finished.emit()
-			return
-		# Display message and sound:
-		SignalBus.display_text.emit(name_ + " " + disablingStatusEffect.text)
-		Audio.status_effect.stream = disablingStatusEffect.sound
-		Audio.status_effect.play()
-		await SignalBus.text_window_closed
-		# Prevent battler from playing this turn:
-		performing_action_finished.emit()
+	process_immunities()
+
+	# 1. Handle Status Effects (Sleep, Paralysis, etc.)
+	# If this returns true, the turn is over (either stunned or just woke up)
+	if await _handle_status_effects():
 		return
-	#endregion
-	SignalBus.display_text.emit(name_+" "+actionToPerform.actionText)
-	#play action sound:
+
+	# 2. Announce Action
+	SignalBus.display_text.emit(name_ + " " + actionToPerform.actionText)
 	Audio.action.stream = actionToPerform.sound
 	await SignalBus.text_window_closed
-	for battler: Battler in targetBattlers:
-		#Check if we're targeting a dead battler:
+
+	# 3. Perform Action on all targets
+	for battler in targetBattlers:
+		# Skip if target is already dead (unless it's a multi-target attack, logic handled below)
 		if battler.isDefeated:
-			SignalBus.display_text.emit(battler.name_+" has already been defeated !")
+			SignalBus.display_text.emit(battler.name_ + " has already been defeated!")
 			await SignalBus.text_window_closed
-			await get_tree().create_timer(0.1).timeout
 			continue
-		# check action type:
-		#region Attack action:
+
 		if actionToPerform is EnemyAttack:
-			# Play attack animation:
-			play_anim("attack")
-			Audio.action.play()
-			# Calculate actual damage amount:
-			var damage: int = (actionToPerform.damageAmount + strength)
-			damage = damage - battler.defense
-			# Make sure we don't deal negative damage:
-			damage = clamp(damage, 0, 9999999)
-			# Hurt the target battler:
-			battler.health -= damage
-			# Display text:
-			var text: String = battler.name_ + " took " + str(damage) + " !"
-			SignalBus.display_text.emit(text)
-			# Play SFX of target battler getting hurt:
-			Audio.play_action_sound("hurt")
-			# Play target battler hurt animation:
-			battler.play_anim("hurt");
-			# Wait until player closes text window:
-			await SignalBus.text_window_closed
-			# Wait a moment:
-			await get_tree().create_timer(0.1).timeout
-			# Check if target battler died
-			if battler.health <= 0:
-				# Set the battler to the "defeated" state:
-				battler.isDefeated = true
-				# Play battler dead sound:
-				Audio.down.play()
-				# Make target battler play death aniamtion:
-				battler.play_anim("defeated")
-				#Wait till anim is done
-				await get_tree().create_timer(1.0).timeout
-				# Display the battler's uniqe death text:
-				SignalBus.display_text.emit(battler.defeatedText)
-				# Wait until player closes text window:
-				await SignalBus.text_window_closed
-				# Check if enemies have won:
-				if check_if_we_won() == true:
-					SignalBus.battle_lost.emit()
-					return
-				#endregion
-		#region Defend action:
+			# _perform_attack returns true if the battle ends (Player lost)
+			if await _perform_attack(battler):
+				return 
+		
 		elif actionToPerform is EnemyDefend:
-			# Play defending animation:
-			play_anim("defend")
-			Audio.action.play()
-			var defenseAmount: int = actionToPerform.defenseAmount
-			# Increase our defense stat:
-			self.defense += defenseAmount
-			# Save the increased amount for later use:
-			defendAmount = defenseAmount
-			# Change state:
-			isDefending = true
-			# Display text:
-			var text: String = battler.name_ + "'s defense increased by " + str(defenseAmount) + " !"
-			SignalBus.display_text.emit(text)
-			# Play SFX of self defending:
-			Audio.play_action_sound("defend")
-			# Play self defense animation:
-			battler.play_anim("defend");
-			# Wait until player closes text window:
-			await SignalBus.text_window_closed
-			# Wait a moment:
-			await get_tree().create_timer(0.1).timeout
-			#endregion
-	# Clear target battlers array:
+			await _perform_defend(battler)
+
+	# 4. Clean up
 	targetBattlers.clear()
-	# Signal to the battle node that we're done:
 	performing_action_finished.emit()
 
 func check_abstract_classes() -> void:
@@ -228,3 +151,102 @@ func handle_defense() -> void:
 	if isDefending:
 		defense -= defendAmount
 		isDefending = false
+
+# Handles status duration, removal, immunity, and skipping turns.
+# Returns true if the battler cannot act this turn.
+func _handle_status_effects() -> bool:
+	if disablingStatusEffect == null:
+		return false # No status, proceed with turn
+		
+	disablingStatusEffect.effectDuration -= 1
+	
+	# Case A: Status wore off
+	if disablingStatusEffect.effectDuration <= 0:
+		isDisabled = false
+		SignalBus.display_text.emit(name_ + " " + disablingStatusEffect.removalText)
+		await SignalBus.text_window_closed
+		
+		# Grant Immunity
+		add_immunity(disablingStatusEffect.name_, 2)
+		SignalBus.display_text.emit(name_ + " is now resistant to " + disablingStatusEffect.name_)
+		await SignalBus.text_window_closed
+		
+		disablingStatusEffect = null
+		status_effect_sprite.texture = null
+		performing_action_finished.emit()
+		return true # Turn consumed by waking up
+	
+	# Case B: Status still active
+	SignalBus.display_text.emit(name_ + " " + disablingStatusEffect.text)
+	Audio.status_effect.stream = disablingStatusEffect.sound
+	Audio.status_effect.play()
+	await SignalBus.text_window_closed
+	performing_action_finished.emit()
+	return true # Turn skipped
+
+# Handles damage calculation, animation, and death checks.
+# Returns true if the game ended.
+func _perform_attack(target: Battler) -> bool:
+	play_anim("attack")
+	Audio.action.play()
+	
+	# Calculate Damage
+	var damage: int = (actionToPerform.damageAmount + strength) - target.defense
+	
+	if randf() <= 0.1: # 10% Chance
+		damage *= 2
+		SignalBus.display_text.emit("CRITICAL HIT!")
+		await SignalBus.text_window_closed
+	
+	damage = clamp(damage, 0, 9999999)
+	
+	# Apply Damage
+	target.health -= damage
+	SignalBus.display_text.emit(target.name_ + " took " + str(damage) + " !")
+	
+	Audio.play_action_sound("hurt")
+	target.play_anim("hurt")
+	
+	await SignalBus.text_window_closed
+	await get_tree().create_timer(0.1).timeout
+	
+	# Check for Death
+	if target.health <= 0:
+		if await _handle_target_death(target):
+			return true # Battle Lost
+			
+	return false
+
+# Handles defense buffs and animations.
+func _perform_defend(target: Battler) -> void:
+	play_anim("defend")
+	Audio.action.play()
+	
+	var defenseAmount: int = actionToPerform.defenseAmount
+	self.defense += defenseAmount
+	defendAmount = defenseAmount # Store for removal next turn
+	isDefending = true
+	
+	SignalBus.display_text.emit(target.name_ + "'s defense increased by " + str(defenseAmount) + " !")
+	Audio.play_action_sound("defend")
+	target.play_anim("defend")
+	
+	await SignalBus.text_window_closed
+	await get_tree().create_timer(0.1).timeout
+
+# Handles the death sequence (animation, text, win condition).
+# Returns true if the enemies won (Player lost).
+func _handle_target_death(target: Battler) -> bool:
+	target.isDefeated = true
+	Audio.down.play()
+	target.play_anim("defeated")
+	await get_tree().create_timer(1.0).timeout
+	
+	SignalBus.display_text.emit(target.defeatedText)
+	await SignalBus.text_window_closed
+	
+	if check_if_we_won():
+		SignalBus.battle_lost.emit()
+		return true
+		
+	return false
