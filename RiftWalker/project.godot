@@ -21,6 +21,7 @@ SignalBus="*res://autoloads/signal_bus.gd"
 Audio="*res://autoloads/audio.tscn"
 ScreenFade="*res://autoloads/screen_fade.tscn"
 Global="*res://autoloads/global.gd"
+AuthManager="*res://autoloads/auth_manager.gd"
 
 [debug]
 

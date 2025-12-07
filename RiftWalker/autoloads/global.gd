@@ -19,6 +19,9 @@ var starting_round: int = 1
 
 var upgrade_points_pending: int = 1
 
+var access_token: String = ""
+var user_id: String = ""
+
 # SAVE SYSTEM CONSTANTS
 const SAVE_PATH = "user://savegame.save"
 

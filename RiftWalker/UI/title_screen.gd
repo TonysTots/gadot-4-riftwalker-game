@@ -31,6 +31,7 @@ func _ready() -> void:
 	setup_button_sounds(%StartGameButton)
 	setup_button_sounds(%ShopButton)
 	setup_button_sounds(%SettingsButton)
+	setup_button_sounds(%LoginButton)
 	setup_button_sounds(%QuitButton)
 	
 	# SETUP THE BACK BUTTON
@@ -129,6 +130,10 @@ func _on_settings_button_pressed() -> void:
 func _on_settings_closed() -> void:
 	%StartGameButton.grab_focus()
 
+func _on_login_button_pressed() -> void:
+	Audio.btn_pressed.play() 
+	$LoginMenu.show()  
+
 func _on_quit_button_pressed() -> void:
 	Audio.btn_pressed.play()
 	get_tree().quit()
@@ -141,3 +146,4 @@ func setup_button_sounds(button: Button) -> void:
 	button.focus_entered.connect(func(): Audio.btn_mov.play())
 	# Play sound when hovered via Mouse
 	button.mouse_entered.connect(func(): Audio.btn_mov.play())
+	 

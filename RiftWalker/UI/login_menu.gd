@@ -1,0 +1,62 @@
+extends Control
+
+signal login_finished
+
+@onready var email_input: LineEdit = %UsernameInput
+@onready var password_input: LineEdit = %PasswordInput
+@onready var login_button: Button = %LoginButton
+@onready var status_label: Label = %StatusLabel
+@onready var back_button: Button = %BackButton
+
+func _ready() -> void:
+	login_button.pressed.connect(_on_login_pressed)
+	back_button.pressed.connect(_on_back_pressed)
+	
+	# --- NEW: Setup Sounds ---
+	setup_ui_sounds(login_button)
+	setup_ui_sounds(back_button)
+	setup_ui_sounds(email_input)
+	setup_ui_sounds(password_input)
+	# -------------------------
+
+	if AuthManager:
+		AuthManager.login_success.connect(_on_login_success)
+		AuthManager.login_failed.connect(_on_login_failed)
+
+# --- NEW: Helper Function ---
+func setup_ui_sounds(node: Control) -> void:
+	# Plays the "blip" sound when mouse enters or tab key focuses the element
+	node.mouse_entered.connect(func(): Audio.btn_mov.play())
+	node.focus_entered.connect(func(): Audio.btn_mov.play())
+
+func _on_login_pressed() -> void:
+	Audio.btn_pressed.play() # <--- Add Sound
+	
+	var email = email_input.text.strip_edges()
+	var password = password_input.text.strip_edges()
+	
+	if email == "" or password == "":
+		status_label.text = "Please enter email and password."
+		return
+	
+	login_button.disabled = true
+	status_label.text = "Connecting..."
+	AuthManager.login(email, password)
+
+func _on_back_pressed() -> void:
+	Audio.btn_pressed.play() # <--- Add Sound
+	hide()
+	login_finished.emit()
+
+# ... (Keep existing _on_login_success and _on_login_failed functions) ...
+func _on_login_success(_user_data: Dictionary) -> void:
+	status_label.text = "Success!"
+	status_label.modulate = Color.GREEN
+	await get_tree().create_timer(1.0).timeout
+	hide()
+	login_finished.emit()
+
+func _on_login_failed(error_message: String) -> void:
+	login_button.disabled = false
+	status_label.modulate = Color.RED
+	status_label.text = error_message

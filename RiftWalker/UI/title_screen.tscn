@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://0xc8hpp1566k"]
+[gd_scene load_steps=9 format=3 uid="uid://0xc8hpp1566k"]
 
 [ext_resource type="Script" uid="uid://13rhnf5pffva" path="res://UI/title_screen.gd" id="1_el03b"]
 [ext_resource type="Texture2D" uid="uid://bhnev71mmyion" path="res://assets/battle_backgrounds/space.jpg" id="2_816ia"]
 [ext_resource type="PackedScene" uid="uid://om1j1at88sjh" path="res://UI/text_window.tscn" id="3_6g7fu"]
 [ext_resource type="AudioStream" uid="uid://ypt0ct5wd1v7" path="res://assets/music/space-438391.mp3" id="4_816ia"]
+[ext_resource type="PackedScene" uid="uid://cbm0l3xgrf6l7" path="res://UI/login_menu.tscn" id="5_udsnl"]
 
 [sub_resource type="Animation" id="Animation_udsnl"]
 length = 0.001
@@ -57,29 +58,31 @@ libraries = {
 }
 autoplay = "spin"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-anchors_preset = -1
-anchor_left = 0.211
-anchor_top = 0.105
-anchor_right = 0.798
-anchor_bottom = 0.88
-offset_left = 78.464
-offset_top = -0.0200005
-offset_right = -78.648
-offset_bottom = -0.120026
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/separation = 35
-
-[node name="TitleLabel" type="Label" parent="VBoxContainer"]
-layout_mode = 2
+[node name="TitleLabel" type="Label" parent="."]
+offset_left = 130.0
+offset_top = 38.0
+offset_right = 450.0
+offset_bottom = 70.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 10
 theme_override_font_sizes/font_size = 32
 text = "RiftWalker"
 horizontal_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -84.0
+offset_top = 112.0
+offset_right = 84.0
+offset_bottom = -39.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
 
 [node name="StartGameButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
@@ -95,6 +98,11 @@ text = "Shop"
 unique_name_in_owner = true
 layout_mode = 2
 text = "Settings"
+
+[node name="LoginButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Login"
 
 [node name="QuitButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
@@ -179,5 +187,9 @@ stream = ExtResource("4_816ia")
 autoplay = true
 parameters/looping = true
 
+[node name="LoginMenu" parent="." instance=ExtResource("5_udsnl")]
+visible = false
+
 [connection signal="pressed" from="VBoxContainer/StartGameButton" to="." method="_on_view_battles_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/LoginButton" to="." method="_on_login_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
