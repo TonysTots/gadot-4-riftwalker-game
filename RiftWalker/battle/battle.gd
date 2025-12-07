@@ -46,66 +46,45 @@ func rename_enemies() -> void:
 	var names: Dictionary = {}
 	var enemies: Array[Node] = get_tree().get_nodes_in_group("enemies")
 	for enemy: EnemyBattler in enemies:
-		# Check if this enemy is repeated:
 		if enemy.name_ in names:
-			# It's repeated: Add a number to it's name
 			enemy.name_ += " " + str(names[enemy.name_] + 1)
 			var temp: String = enemy.name_
 			var formated: String = temp.erase(len(temp) - 2, 2)
-			# Increase the count of this repeated enemy
 			names[formated] += 1
-			# Special case where we rename the 1st duplicated enemy:
 			if names[formated] == 2:
-				# Find the enemy:
 				for enemy_: EnemyBattler in enemies:
 					if enemy_.name_ == formated:
 						enemy_.name_ += " 1"
 						break
-		# 1st time seeing this enemy:
 		else:
 			names[enemy.name_] = 1
-			enemy.name_ = enemy.name_ # Force label to update.
+			enemy.name_ = enemy.name_ 
 
 @warning_ignore("shadowed_variable")
 func load_battlers(battlers: Array, battlerFile: PackedScene, circle: Marker2D) -> void:
 	for i: int in range(len(battlers)):
 		var allyScene: Battler = battlerFile.instantiate()
-		
-		# --- MODIFIED: Stats Scaling Logic ---
-		# 1. Duplicate the stats so we don't modify the original resource file
 		var stats = battlers[i].duplicate()
 		
-		# 2. Check if it's an enemy (only enemies should scale)
+		# Stats Scaling Logic
 		if stats is EnemyStats:
-			
-			# Base 100% + (5% * (Round-1)^2)
 			var multiplier: float = Global.get_current_difficulty_multiplier()
-			
-			# Apply to stats
 			stats.health = int(stats.health * multiplier)
 			stats.strength = int(stats.strength * multiplier)
 			stats.magicStrength = int(stats.magicStrength * multiplier)
-			
-			# Optional: Increase Reward (XP/Gold) logic is handled separately in calculate_loot, 
-			# but since calculate_loot reads these new stats, rewards will naturally scale too!
 		
-		# 3. Assign the modified stats
 		allyScene.stats = stats
-		# -------------------------------------
-		
 		$Battlers.add_child(allyScene)
 		var all: int = battlers.size()
 		@warning_ignore("integer_division")
 		var calc: float = 360 / all
 		circle.rotation_degrees = calc * i
-		# Spawn Battler in the middle if there's only 1:
 		if battlers.size() == 1:
 			allyScene.global_position = circle.global_position
 		else:
 			allyScene.global_position = circle.get_node("SpawnPoint").global_position
 
 func _input(event: InputEvent) -> void:
-	# Ignore input if the settings menu is currently open
 	if settings_instance != null and settings_instance.visible:
 		return
 
@@ -139,7 +118,7 @@ func let_battlers_perform_action() -> void:
 		await battler.performing_action_finished
 		battler.set_process(false)
 	free_defeated_battlers()
-	await get_tree().create_timer(0.01).timeout # Wait till all are freed.
+	await get_tree().create_timer(0.01).timeout 
 	let_battlers_decide_actions()
 
 func free_defeated_battlers() -> void:
@@ -149,7 +128,7 @@ func free_defeated_battlers() -> void:
 			battler.remove_from_group("allies")
 			battler.reparent(self)
 			battler.anim.play("fade_out")
-	await get_tree().create_timer(0.01).timeout #Wait till all are freed.
+	await get_tree().create_timer(0.01).timeout 
 	battlers.clear()
 	battlers = $Battlers.get_children()
 
@@ -169,37 +148,36 @@ func on_cursor_come_to_me(my_position: Vector2, is_ally: bool) -> void:
 	var tween: Tween = get_tree().create_tween()
 	tween.tween_property($Cursor, "global_position", finalValue, 0.1)
 
-# --- REWARD CALCULATION ---
 func calculate_loot() -> int:
 	var total_reward: int = 0
-	
 	var multiplier: float = Global.get_current_difficulty_multiplier()
-	
-	# Iterate over the enemy stats in the battle data
 	for enemy_stats: EnemyStats in battleData.enemies:
-		# Apply the multiplier to the base stats locally
 		var scaled_health = enemy_stats.health * multiplier
 		var scaled_strength = enemy_stats.strength * multiplier
 		var scaled_magic = enemy_stats.magicStrength * multiplier
-		
-		# Formula: 10% of HP + 20% of Strength + 20% of Magic Strength
 		var coin_value = (scaled_health * 0.1) + (scaled_strength * 0.2) + (scaled_magic * 0.2)
 		total_reward += int(coin_value)
-	
-	# Minimum 10 coins just in case
 	return max(10, total_reward)
+
+# --- NEW HELPER ---
+func get_party_leader_name() -> String:
+	if battleData and battleData.allies.size() > 0:
+		return battleData.allies[0].name 
+	return "Unknown"
 
 func on_battle_won() -> void:
 	$Cursor/AnimationPlayer.play("fade")
 	
-	
-	# 1. Calculate Rewards (Use CURRENT round difficulty)
 	var coins_earned = calculate_loot()
 	Global.coins += coins_earned
 	Global.current_round += 1
 	Global.save_game()
 	
-	# 2. Display Rewards Pop-up
+	# --- NEW: Upload Win Stats ---
+	if AuthManager:
+		AuthManager.upload_run_data(Global.current_round, Global.coins, get_party_leader_name())
+	# -----------------------------
+	
 	var reward_text = "Battle Won!\n\nLoot Found:\n" + str(coins_earned) + " Coins"
 	SignalBus.display_text.emit(reward_text)
 	
@@ -229,11 +207,16 @@ func reset_stats() -> void:
 
 func on_battle_lost() -> void:
 	$Cursor/AnimationPlayer.play("fade")
+	
+	# --- NEW: Upload Loss Stats ---
+	if AuthManager:
+		AuthManager.upload_run_data(Global.current_round, Global.coins, get_party_leader_name())
+	# ------------------------------
+
 	SignalBus.display_text.emit("Battle lost...")
 	Audio.lost.play()
 	
 	Global.current_round = Global.starting_round
-	
 	Global.save_game()
 	
 	reset_stats()
@@ -248,17 +231,12 @@ func _on_settings_button_pressed() -> void:
 		settings_instance = SETTINGS_SCENE.instantiate()
 		add_child(settings_instance)
 		settings_instance.closed.connect(_on_settings_closed)
-		
-		# --- NEW: Connect the End Run signal ---
 		settings_instance.end_run_requested.connect(_on_end_run_requested)
 	
-	# --- NEW: Show the End Run button since we are in battle ---
 	settings_instance.enable_battle_mode()
-	
 	settings_instance.show()
 	%SettingsButton.release_focus()
 
-# Define what happens when the player confirms "End Run"
 func _on_end_run_requested() -> void:
 	SignalBus.battle_lost.emit()
 
