@@ -12,6 +12,15 @@ func _ready() -> void:
 	login_button.pressed.connect(_on_login_pressed)
 	back_button.pressed.connect(_on_back_pressed)
 	
+	if has_node("%RecoverButton"):
+		%RecoverButton.toggled.connect(func(toggled):
+			if has_node("%DeviceIdContainer"):
+				%DeviceIdContainer.visible = toggled
+				if toggled:
+					# Populate with current ID if opening
+					%DeviceIdInput.text = Global.device_id
+		)
+	
 	# --- NEW: Setup Sounds ---
 	setup_ui_sounds(login_button)
 	setup_ui_sounds(back_button)
@@ -42,6 +51,15 @@ func _on_login_pressed() -> void:
 	login_button.disabled = true
 	status_label.modulate = Color.WHITE
 	status_label.text = "Connecting..."
+	
+	# --- NEW: Override ID if manually entered ---
+	if has_node("%DeviceIdContainer") and %DeviceIdContainer.visible:
+		var manual_id = %DeviceIdInput.text.strip_edges()
+		if manual_id != "" and manual_id != Global.device_id:
+			Global.device_id = manual_id
+			# We should save this change immediately so it persists
+			Global.save_game() 
+	
 	AuthManager.login(email)
 
 func _on_back_pressed() -> void:

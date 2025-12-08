@@ -62,7 +62,15 @@ func save_game() -> void:
 		"lifetime_coins": lifetime_coins,
 		"device_id": device_id
 	}
+	
 	file.store_string(JSON.stringify(data))
+	file.close() # Ensure close
+	
+	# --- NEW: Trigger Cloud Backup ---
+	# We use call_deferred to avoid stalling the main thread too much, 
+	# though HTTPRequest is async anyway.
+	if AuthManager:
+		AuthManager.call_deferred("upload_save", SAVE_PATH)
 
 func load_game() -> void:
 	if not FileAccess.file_exists(SAVE_PATH):

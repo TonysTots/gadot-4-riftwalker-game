@@ -346,6 +346,7 @@ func _perform_curse(target: Battler) -> void:
 	target.disablingStatusEffect = effect.duplicate()
 	target.isDisabled = true
 	target.status_effect_sprite.texture = effect.sprite
+	target.status_effect_sprite.scale = Vector2(effect.scale, effect.scale) # Fix: Apply scale
 	
 	SignalBus.display_text.emit(target.name_ + " inflicted with " + effect.name_ + "!")
 	Audio.play_action_sound("cursed")
