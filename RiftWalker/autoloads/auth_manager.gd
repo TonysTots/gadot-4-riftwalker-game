@@ -183,7 +183,7 @@ func download_save(target_path: String) -> void:
 	
 	var req = HTTPRequest.new()
 	add_child(req)
-	req.request_completed.connect(func(result, response_code, headers, body):
+	req.request_completed.connect(func(_result, response_code, _headers, body):
 		if response_code == 200:
 			var file = FileAccess.open(target_path, FileAccess.WRITE)
 			file.store_buffer(body)

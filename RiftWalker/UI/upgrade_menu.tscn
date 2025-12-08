@@ -5,6 +5,7 @@
 [ext_resource type="Resource" uid="uid://bbwdd2xv1bf1i" path="res://stats/ally_stats/blake.tres" id="3_3w7tv"]
 [ext_resource type="Resource" uid="uid://cghwgxhnra2og" path="res://stats/ally_stats/michael.tres" id="4_1uskd"]
 [ext_resource type="Resource" uid="uid://cnxgagq22hko" path="res://stats/ally_stats/mitchell.tres" id="5_dc6v4"]
+[ext_resource type="AudioStream" uid="uid://b0x2y5n4a1q8" path="res://assets/music/upgrade_menu.mp3" id="6_music"]
 
 [node name="UpgradeMenu" type="Control"]
 layout_mode = 3
@@ -85,3 +86,8 @@ size_flags_horizontal = 10
 size_flags_vertical = 8
 disabled = true
 text = "Fight!"
+
+[node name="BGM" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_music")
+autoplay = true
+bus = &"Music"

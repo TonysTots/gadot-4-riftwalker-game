@@ -42,7 +42,15 @@ func _ready() -> void:
 	$Background.scale = battleData.scale
 	RenderingServer.set_default_clear_color(Color.BLACK)
 	$Background.modulate.a = battleData.opacity
-	battle_music.stream = battleData.battleMusic
+	
+	# Determine Music
+	var music_stream = battleData.battleMusic
+	if Global.map_data:
+		var node = Global.map_data.get_node(Global.map_data.current_node_grid_pos)
+		if node and node.type == MapNode.Type.BOSS:
+			music_stream = load("res://assets/music/boss_battle.mp3")
+			
+	battle_music.stream = music_stream
 	battle_music.play()
 	
 	# Load battlers:
@@ -114,6 +122,27 @@ func on_battle_won() -> void:
 	
 	Global.coins += coins_earned
 	Global.current_round += 1
+	
+	# Update Map Progression
+	if Global.map_data:
+		var current_x = int(Global.map_data.current_node_grid_pos.x)
+		if current_x > Global.map_data.max_reached_layer:
+			Global.map_data.max_reached_layer = current_x
+	
+	# Upgrade Points for everyone in the party
+	var points_to_add = 1
+	if Global.map_data:
+		var node = Global.map_data.get_node(Global.map_data.current_node_grid_pos)
+		if node and node.type == MapNode.Type.BOSS:
+			points_to_add = 5
+			
+	for ally in battleData.allies:
+		if ally.name in Global.party_points:
+			Global.party_points[ally.name] += points_to_add
+		else:
+			Global.party_points[ally.name] = points_to_add # Initialize if new joining member
+	
+	# Save AFTER modifying points
 	Global.update_lifetime_stats(Global.current_round, coins_earned)
 	Global.save_game()
 	
@@ -129,7 +158,13 @@ func on_battle_won() -> void:
 	await SignalBus.text_window_closed
 	ScreenFade.fade_into_black()
 	await get_tree().create_timer(0.5).timeout
-	get_tree().change_scene_to_file("res://UI/upgrade_menu.tscn")
+	
+	if Global.current_round >= 999: # Placeholder for victory condition
+		get_tree().change_scene_to_file("res://UI/credits.tscn")
+	else:
+		# Return to Map
+		Global.battle_round_offset = 0 # Reset diff boost
+		get_tree().change_scene_to_file("res://UI/map_screen.tscn")
 
 func on_battle_lost() -> void:
 	if battle_ended: return
@@ -148,6 +183,7 @@ func on_battle_lost() -> void:
 	Global.save_game()
 	
 	reset_stats()
+	Global.battle_round_offset = 0 # Reset diff boost
 	await SignalBus.text_window_closed
 	ScreenFade.fade_into_black()
 	await get_tree().create_timer(0.5).timeout

@@ -24,6 +24,7 @@ var leaderboard_instance: Control = null
 
 func _ready() -> void:
 	$ChooseBattle.hide() # Updated path
+	Global.map_data = null # Ensure we are not "in a run" logic-wise
 	
 	SignalBus.label_index_changed.connect(
 		func(newIndex: int) -> void:
@@ -118,11 +119,38 @@ func _input(event: InputEvent) -> void:
 
 func _on_start_game_button_pressed() -> void:
 	Audio.btn_pressed.play()
-	ChooseBattle.show()
-	isSelecting = true
-	# We release focus so the keyboard 'ui_up/down' controls the custom label logic
-	# instead of moving actual UI focus around.
-	%StartGameButton.release_focus()
+	
+	# Reset map data for a new run
+	Global.map_data = null 
+	ScreenFade.fade_into_black()
+	await get_tree().create_timer(0.5).timeout
+	
+	# Initialize Map Base Difficulty (Run State) from User Preference
+	# We rely on starting_round being set correctly by the user (or settings)
+	Global.map_base_difficulty = Global.starting_round
+	
+	# Initialize Party Points
+	var initial_points = 1
+	if Global.starting_round > 1:
+		initial_points = Global.starting_round
+		
+	# RESET ROUND - FIXES STAT PERSISTENCE BUG
+	Global.current_round = Global.starting_round
+	
+	# Reset dictionary
+	Global.party_points = {
+		"Blake": initial_points,
+		"Michael": initial_points,
+		"Mitchell": initial_points
+	}
+	
+	# Check for Starting Round Bonus
+	if Global.starting_round > 1:
+		# Global.upgrade_points_pending = 0  <-- Removed legacy
+		get_tree().change_scene_to_file("res://UI/upgrade_menu.tscn")
+	else:
+		# Global.upgrade_points = 1 <-- Removed legacy
+		get_tree().change_scene_to_file("res://UI/map_screen.tscn")
 
 # NEW FUNCTION TO HANDLE GOING BACK
 func _on_back_button_pressed() -> void:

@@ -43,8 +43,10 @@ func _on_visibility_changed() -> void:
 			email_input.text = Global.current_username
 
 	if AuthManager:
-		AuthManager.login_success.connect(_on_login_success)
-		AuthManager.login_failed.connect(_on_login_failed)
+		if not AuthManager.login_success.is_connected(_on_login_success):
+			AuthManager.login_success.connect(_on_login_success)
+		if not AuthManager.login_failed.is_connected(_on_login_failed):
+			AuthManager.login_failed.connect(_on_login_failed)
 
 # --- NEW: Helper Function ---
 func setup_ui_sounds(node: Control) -> void:

@@ -70,6 +70,7 @@ func take_damage(amount: int, is_critical: bool = false) -> void:
 	
 	# Note: 'health' is defined in child classes, so this relies on dynamic access
 	self.health -= actual_damage
+	if self.health < 0: self.health = 0
 	
 	# Visuals
 	play_anim("hurt")

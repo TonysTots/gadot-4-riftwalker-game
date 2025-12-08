@@ -17,6 +17,8 @@ var current_round: int = 1
 
 var starting_round: int = 1
 
+var party_points: Dictionary = {} # Key: Name (String), Value: Points (int)
+
 var upgrade_points_pending: int = 1
 var highest_round: int = 1
 var lifetime_coins: int = 0
@@ -25,6 +27,10 @@ var access_token: String = ""
 var user_id: String = ""
 var device_id: String = ""
 var current_username: String = ""
+
+# --- MAP SYSTEM ---
+var map_data: MapData = null
+# ------------------
 
 # SAVE SYSTEM CONSTANTS
 const SAVE_PATH = "user://savegame.save"
@@ -61,6 +67,9 @@ func save_game() -> void:
 		"current_round": current_round,
 		"starting_round": starting_round, # --- NEW: Save preference ---
 		"highest_round": highest_round,
+		"map_base_difficulty": map_base_difficulty,
+
+		"party_points": party_points,
 		"lifetime_coins": lifetime_coins,
 		"device_id": device_id,
 		"current_username": current_username
@@ -98,21 +107,30 @@ func load_game() -> void:
 			starting_round = data["starting_round"]
 		if data.has("highest_round"):
 			highest_round = data["highest_round"]
+		if data.has("party_points"):
+			party_points = data["party_points"]
 		if data.has("lifetime_coins"):
 			lifetime_coins = data["lifetime_coins"]
 		if data.has("device_id"):
 			device_id = data["device_id"]
-		if data.has("current_username"):
 			current_username = data["current_username"]
+		if data.has("map_base_difficulty"):
+			map_base_difficulty = data["map_base_difficulty"]
+
+var map_base_difficulty: int = 1
 	
 
+
+# Temporary offset for specific battles (e.g. Boss = +10)
+var battle_round_offset: int = 0
 
 # Returns the difficulty multiplier for the current round.
 # Round 1 = 1.0, Round 2 = 1.05, Round 10 = 5.05 (approx)
 func get_current_difficulty_multiplier() -> float:
-	if current_round <= 1:
+	var effective_round = current_round + battle_round_offset
+	if effective_round <= 1:
 		return 1.0
-	return 1.0 + (pow(current_round - 1, 2) * 0.05)
+	return 1.0 + (pow(effective_round - 1, 2) * 0.05)
 	
 func update_lifetime_stats(round_reached: int, coins_gained_in_battle: int) -> void:
 	if round_reached > highest_round:

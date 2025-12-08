@@ -185,7 +185,11 @@ func _on_close_pressed() -> void:
 	# 1. Fade Out
 	ScreenFade.fade_into_black()
 	await get_tree().create_timer(0.5).timeout
-	get_tree().change_scene_to_file("res://UI/title_screen.tscn")
+	
+	if Global.map_data != null:
+		get_tree().change_scene_to_file("res://UI/map_screen.tscn")
+	else:
+		get_tree().change_scene_to_file("res://UI/title_screen.tscn")
 
 # --- 2. AUDIO HELPER ---
 func setup_button_sounds(button: Button) -> void:

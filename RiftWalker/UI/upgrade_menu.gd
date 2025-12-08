@@ -16,6 +16,18 @@ var mode_buttons: Array[Button] = []
 func _ready() -> void:
 	ScreenFade.fade_into_game()
 	
+	# Explicitly play music
+	if has_node("BGM"):
+		var bgm = $BGM
+		var stream = bgm.stream as AudioStreamMP3
+		if stream:
+			stream.loop = true
+			stream.loop = true
+			stream.loop_offset = 2.5 # Skip 2.5s of silence on loop
+			
+		# Play from 2.5s to skip initial silence (Overrides Autoplay)
+		bgm.play(2.5)
+	
 	# Setup Global Buttons
 	%UndoButton.pressed.connect(_on_undo_pressed)
 	%StartButton.pressed.connect(_on_start_battle_pressed)
@@ -29,8 +41,14 @@ func _ready() -> void:
 		upgrades_spent[stats.get_instance_id()] = 0
 		
 	# Button Text Update
-	var points_limit = get_points_limit()
-	if points_limit > 1:
+	# Just check if anyone has points
+	var any_points = false
+	for stats in party_stats:
+		if get_points_limit(stats.name) > 0:
+			any_points = true
+			break
+			
+	if any_points:
 		%StartButton.text = "Finish"
 	else:
 		%StartButton.text = "Fight!"
@@ -44,11 +62,14 @@ func _ready() -> void:
 	# Create new columns
 	for stats in party_stats:
 		create_hero_column(stats)
+		
+	# Ensure the button is enabled correctly on startup
+	check_start_condition()
 
-func get_points_limit() -> int:
-	if "upgrade_points_pending" in Global:
-		return Global.upgrade_points_pending
-	return 1
+func get_points_limit(char_name: String) -> int:
+	if char_name in Global.party_points:
+		return Global.party_points[char_name]
+	return 0
 
 func create_mode_selector() -> void:
 	var bottom_bar = %UndoButton.get_parent()
@@ -154,10 +175,10 @@ func _on_upgrade_clicked(stats: AllyStats, stat_name: String, column: VBoxContai
 	Audio.btn_pressed.play()
 	
 	# Calculate amounts
-	var limit = get_points_limit()
+	var limit = get_points_limit(stats.name)
 	var id = stats.get_instance_id()
-	var spent = upgrades_spent[id]
-	var available = limit - spent
+	# available IS limit because Global decreases on spend
+	var available = limit
 	
 	if available <= 0: return
 
@@ -185,6 +206,10 @@ func _on_upgrade_clicked(stats: AllyStats, stat_name: String, column: VBoxContai
 	# Track
 	upgrades_spent[id] += amount
 	
+	if stats.name in Global.party_points:
+		Global.party_points[stats.name] -= amount
+		Global.save_game()
+	
 	# History
 	action_history.append({
 		"stats": stats,
@@ -211,14 +236,19 @@ func _on_undo_pressed() -> void:
 	
 	upgrades_spent[stats.get_instance_id()] -= amount
 	
+	if stats.name in Global.party_points:
+		Global.party_points[stats.name] += amount
+		Global.save_game()
+	
 	update_ui_state(col, stats)
 
 func update_ui_state(column: VBoxContainer, stats: AllyStats) -> void:
 	update_labels(column, stats)
 	
-	var limit = get_points_limit()
-	var spent = upgrades_spent[stats.get_instance_id()]
-	var is_full = spent >= limit
+	var limit = get_points_limit(stats.name)
+	# Since Global decreases, limit IS available.
+	# is_full if no points left
+	var is_full = limit <= 0
 	
 	for child in column.get_children():
 		if child is Button:
@@ -230,9 +260,9 @@ func update_ui_state(column: VBoxContainer, stats: AllyStats) -> void:
 func update_labels(column: VBoxContainer, stats: AllyStats) -> void:
 	# Points Label is Index 1
 	var pts_label = column.get_child(1) as Label
-	var limit = get_points_limit()
-	var remaining = limit - upgrades_spent[stats.get_instance_id()]
-	pts_label.text = "Points: " + str(remaining)
+
+	var available = get_points_limit(stats.name)
+	pts_label.text = "Points: " + str(available)
 	
 	# Stats RichTextLabel is Index 3
 	var stats_label = column.get_child(3) as RichTextLabel
@@ -244,9 +274,8 @@ func show_preview(label: RichTextLabel, stats: AllyStats, buff_stat: String) -> 
 	var current = calculate_derived_stats(stats.body, stats.mind, stats.spirit)
 	
 	# Calculate potential increase based on mode
-	var id = stats.get_instance_id()
-	var limit = get_points_limit()
-	var available = limit - upgrades_spent[id]
+	# var id = stats.get_instance_id()  <-- Unused
+	var available = get_points_limit(stats.name)
 	var amount = 0
 	
 	if current_mode == 1: amount = 1
@@ -269,25 +298,15 @@ func show_preview(label: RichTextLabel, stats: AllyStats, buff_stat: String) -> 
 	label.text = format_stats_text(current, future)
 
 func check_start_condition() -> void:
-	var limit = get_points_limit()
-	var total_needed = party_stats.size() * limit
-	var total_spent = 0
-	for k in upgrades_spent:
-		total_spent += upgrades_spent[k]
-		
-	if total_spent >= total_needed:
-		%StartButton.disabled = false
-		%StartButton.grab_focus()
-	else:
-		%StartButton.disabled = true
+	# Start is enabled always (save points logic)
+	%StartButton.disabled = false
 
 func _on_start_battle_pressed() -> void:
 	Audio.btn_pressed.play()
-	if "upgrade_points_pending" in Global:
-		Global.upgrade_points_pending = 1
+	# No reset needed, points are persistent now
 		
-	Global.pick_new_battle()
-	get_tree().change_scene_to_file(BATTLE_SCENE_PATH)
+	# Flow Change: Go to Map, not Battle
+	get_tree().change_scene_to_file("res://UI/map_screen.tscn")
 
 func _on_sprite_anim_done(sprite: AnimatedSprite2D) -> void:
 	sprite.play("idle")

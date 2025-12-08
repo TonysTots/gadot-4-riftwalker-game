@@ -5,19 +5,30 @@ extends Node
 var actionIndex: int:
 	set(value):
 		if value < 0 or value >= parent.attackActions.size(): return
-		var labelToUnfocus: Label = parent.options_container.get_child(actionIndex)
-		labelToUnfocus.modulate.a = 0.5
+		
+		if actionIndex < parent.options_container.get_child_count():
+			var labelToUnfocus: Label = parent.options_container.get_child(actionIndex)
+			if labelToUnfocus: labelToUnfocus.modulate.a = 0.5
+			
 		actionIndex = value
-		var labelToFocus: Label = parent.options_container.get_child(actionIndex)
-		labelToFocus.modulate.a = 1
+		
+		if actionIndex < parent.options_container.get_child_count():
+			var labelToFocus: Label = parent.options_container.get_child(actionIndex)
+			if labelToFocus: labelToFocus.modulate.a = 1
+
 var enemyIndex: int:
 	set(value):
 		if value < 0 or value >= get_tree().get_nodes_in_group("enemies").size(): return
-		var labelToUnfocus: Label = parent.options_container.get_child(enemyIndex)
-		if labelToUnfocus: labelToUnfocus.modulate.a = 0.5
+		
+		if enemyIndex < parent.options_container.get_child_count():
+			var labelToUnfocus: Label = parent.options_container.get_child(enemyIndex)
+			if labelToUnfocus: labelToUnfocus.modulate.a = 0.5
+			
 		enemyIndex = value
-		var labelToFocus: Label = parent.options_container.get_child(enemyIndex)
-		labelToFocus.modulate.a = 1
+		
+		if enemyIndex < parent.options_container.get_child_count():
+			var labelToFocus: Label = parent.options_container.get_child(enemyIndex)
+			if labelToFocus: labelToFocus.modulate.a = 1
 
 #Selection states:
 enum {NOT_SELECTING, SELECTING_ATTACK, SELECTING_ENEMIES}
