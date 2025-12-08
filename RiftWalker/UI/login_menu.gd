@@ -21,12 +21,26 @@ func _ready() -> void:
 					%DeviceIdInput.text = Global.device_id
 		)
 	
+	# --- NEW: Pre-fill username if known ---
+	if Global.current_username != "":
+		email_input.text = Global.current_username
+	# ---------------------------------------
+	
 	# --- NEW: Setup Sounds ---
 	setup_ui_sounds(login_button)
 	setup_ui_sounds(back_button)
 	setup_ui_sounds(email_input)
 	# setup_ui_sounds(password_input)
 	# -------------------------
+	
+	visibility_changed.connect(_on_visibility_changed)
+
+func _on_visibility_changed() -> void:
+	if visible:
+		login_button.disabled = false
+		status_label.text = ""
+		if Global.current_username != "":
+			email_input.text = Global.current_username
 
 	if AuthManager:
 		AuthManager.login_success.connect(_on_login_success)

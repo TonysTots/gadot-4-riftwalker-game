@@ -280,12 +280,21 @@ func _perform_attack(target: Battler) -> void:
 	
 	# Calculate Damage & Critical Hit
 	var damage = actionToPerform.damageAmount + strength
+	var is_crit = false
+	
 	if randf() <= 0.1: # 10% Crit Chance
 		damage *= 2
+		is_crit = true
+	
+	await _apply_damage(target, damage, is_crit)
+	
+	if is_crit:
+		# Juice is now handled in take_damage so it's instant
 		SignalBus.display_text.emit("CRITICAL HIT!")
 		await SignalBus.text_window_closed
-	
-	await _apply_damage(target, damage)
+	else:
+		# If no text box, we still need a brief pause so attacks don't feel instant/weightless
+		await wait_with_skip(0.5)
 
 func _perform_defend(target: Battler) -> void:
 	play_anim("defend")
@@ -306,7 +315,15 @@ func _perform_spell(target: Battler) -> void:
 		play_anim("offensive_magic")
 		Audio.action.play()
 		var damage = actionToPerform.damageAmount + magicStrength
-		await _apply_damage(target, damage)
+		
+		# --- NEW: Spell Critical Hit ---
+		var is_crit = false
+		if randf() <= 0.1: # 10% Chance
+			damage *= 2
+			is_crit = true
+		# -------------------------------
+		
+		await _apply_damage(target, damage, is_crit)
 		
 	elif actionToPerform is HealingSpell:
 		play_anim("heal_magic")
@@ -362,13 +379,15 @@ func _perform_item(target: Battler) -> void:
 	await SignalBus.text_window_closed
 
 # Centralized damage application and death check
-func _apply_damage(target: Battler, raw_damage: int) -> void:
+func _apply_damage(target: Battler, raw_damage: int, is_critical: bool = false) -> void:
 	var final_damage = clampi(raw_damage - target.defense, 0, 9999999)
-	target.take_damage(final_damage) # Battler class handles the "took damage" text
+	target.take_damage(final_damage, is_critical) # Battler class handles the "took damage" text
 	
 	Audio.play_action_sound("hurt")
+	Audio.play_action_sound("hurt")
 	# Using 'hurt' anim inside take_damage usually, but we ensure flow here:
-	await SignalBus.text_window_closed
+	# Removed text logging wait, just wait for anim frame
+	await wait_with_skip(0.3)
 	await get_tree().create_timer(0.1).timeout
 	
 	if target.health <= 0:

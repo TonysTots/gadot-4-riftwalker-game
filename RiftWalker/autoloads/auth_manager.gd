@@ -93,6 +93,10 @@ func _on_request_completed(_result, response_code, _headers, body):
 				# --- NEW: Trigger Cloud Sync ---
 				download_save(Global.SAVE_PATH)
 			
+			if response_dict.has("username"):
+				Global.current_username = response_dict["username"]
+				Global.save_game()
+			
 			login_success.emit(response_dict)
 		else:
 			login_success.emit({}) 

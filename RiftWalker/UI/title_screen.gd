@@ -69,6 +69,19 @@ func _ready() -> void:
 	if has_node("%LeaderboardButton"):
 		%LeaderboardButton.pressed.connect(_on_leaderboard_button_pressed)
 
+	# --- AUTO-LOGIN ---
+	AuthManager.login_success.connect(_on_login_success)
+	if Global.current_username != "":
+		%LoginButton.text = "Logging in..."
+		AuthManager.login(Global.current_username)
+	# ------------------
+
+func _on_login_success(user_data: Dictionary) -> void:
+	if user_data.has("username"):
+		%LoginButton.text = "Profile: " + user_data["username"]
+		%LoginButton.disabled = false # Keep enabled so user can reopen menu
+
+
 func begin_battle() -> void:
 	Audio.btn_pressed.play()
 	

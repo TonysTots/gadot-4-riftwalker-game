@@ -24,14 +24,15 @@ var lifetime_coins: int = 0
 var access_token: String = ""
 var user_id: String = ""
 var device_id: String = ""
+var current_username: String = ""
 
 # SAVE SYSTEM CONSTANTS
 const SAVE_PATH = "user://savegame.save"
 
-# Define list of possible battles here
-var all_battles: Array[BattleData] = [
-	preload("res://battle_data/ship.tres"),
-	preload("res://battle_data/space.tres")
+# Define list of possible battles here (Paths only, load on demand)
+var all_battles: Array[String] = [
+	"res://battle_data/ship.tres",
+	"res://battle_data/space.tres"
 ]
 
 func _ready() -> void:
@@ -47,7 +48,8 @@ func _ready() -> void:
 
 # Pick a random battle from the list
 func pick_new_battle() -> void:
-	battle = all_battles.pick_random()
+	var battle_path = all_battles.pick_random()
+	battle = load(battle_path)
 
 # --- SAVE SYSTEM ---
 
@@ -60,7 +62,8 @@ func save_game() -> void:
 		"starting_round": starting_round, # --- NEW: Save preference ---
 		"highest_round": highest_round,
 		"lifetime_coins": lifetime_coins,
-		"device_id": device_id
+		"device_id": device_id,
+		"current_username": current_username
 	}
 	
 	file.store_string(JSON.stringify(data))
@@ -99,6 +102,8 @@ func load_game() -> void:
 			lifetime_coins = data["lifetime_coins"]
 		if data.has("device_id"):
 			device_id = data["device_id"]
+		if data.has("current_username"):
+			current_username = data["current_username"]
 	
 
 

@@ -65,7 +65,7 @@ func check_if_we_won() -> bool:
 		return true
 	return false
 
-func take_damage(amount: int) -> void:
+func take_damage(amount: int, is_critical: bool = false) -> void:
 	var actual_damage = amount
 	
 	# Note: 'health' is defined in child classes, so this relies on dynamic access
@@ -74,8 +74,19 @@ func take_damage(amount: int) -> void:
 	# Visuals
 	play_anim("hurt")
 	
-	var text = name_ + " took " + str(actual_damage) + "!"
-	SignalBus.display_text.emit(text)
+	# --- NEW: Floating Damage Text ---
+	var indicator = load("res://UI/damage_indicator.tscn").instantiate()
+	add_child(indicator)
+	indicator.setup(actual_damage, is_critical) # Now using real crit flag
+	# ---------------------------------
+	
+	# --- NEW: Instant Juice ---
+	if is_critical:
+		SignalBus.request_camera_shake.emit(5.0, 0.2)
+		SignalBus.request_hit_stop.emit(0.05, 0.15)
+	# ------------------------
+	
+	# Removed text logging as per request
 
 # --- SPEED UPDATE FUNCTIONS ---
 func _on_game_speed_changed(new_speed: float) -> void:
@@ -104,3 +115,13 @@ func add_immunity(status_name: String, duration: int) -> void:
 
 func is_immune(status_name: String) -> bool:
 	return status_immunities.has(status_name)
+
+# --- NEW: Skippable Wait Helper ---
+# waits for 'duration' seconds, OR until the user clicks/presses action
+func wait_with_skip(duration: float) -> void:
+	var t = get_tree().create_timer(duration)
+	while t.time_left > 0:
+		if Input.is_action_just_pressed("ui_accept") or Input.is_action_just_pressed("left_click"):
+			return # Skip
+		await get_tree().process_frame
+# ----------------------------------

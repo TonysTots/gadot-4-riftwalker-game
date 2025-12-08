@@ -39,8 +39,43 @@ func _ready() -> void:
 	
 	round_label.text = "Round " + str(Global.current_round)
 	
+	# --- NEW: Juice Setup ---
+	camera = Camera2D.new()
+	camera.position = Vector2(288, 162) # Center of screen
+	add_child(camera)
+	
+	if SignalBus.has_signal("request_camera_shake"):
+		SignalBus.request_camera_shake.connect(_on_request_camera_shake)
+	if SignalBus.has_signal("request_hit_stop"):
+		SignalBus.request_hit_stop.connect(_on_request_hit_stop)
+	# ------------------------
+	
 	rename_enemies()
 	let_battlers_decide_actions()
+
+# --- JUICE LOGIC ---
+var shake_strength: float = 0.0
+var shake_decay: float = 5.0
+var camera: Camera2D
+
+func _process(delta: float) -> void:
+	if shake_strength > 0:
+		shake_strength = lerp(shake_strength, 0.0, shake_decay * delta)
+		if camera:
+			camera.offset = Vector2(
+				randf_range(-shake_strength, shake_strength),
+				randf_range(-shake_strength, shake_strength)
+			)
+
+func _on_request_camera_shake(intensity: float, duration: float) -> void:
+	shake_strength = intensity
+	shake_decay = 5.0 / duration
+
+func _on_request_hit_stop(time_scale: float, duration: float) -> void:
+	Engine.time_scale = time_scale
+	await get_tree().create_timer(duration * time_scale).timeout
+	Engine.time_scale = 1.0
+# -------------------
 
 func rename_enemies() -> void:
 	# Dict to keep track of num of repeated enemies:

@@ -192,22 +192,29 @@ func _perform_attack(target: Battler) -> bool:
 	
 	# Calculate Damage
 	var damage: int = (actionToPerform.damageAmount + strength) - target.defense
+	var is_crit = false
 	
 	if randf() <= 0.1: # 10% Chance
 		damage *= 2
-		SignalBus.display_text.emit("CRITICAL HIT!")
-		await SignalBus.text_window_closed
+		is_crit = true
 	
 	damage = clamp(damage, 0, 9999999)
 	
 	# Apply Damage
-	target.health -= damage
-	SignalBus.display_text.emit(target.name_ + " took " + str(damage) + " !")
+	# Apply Damage (Explicitly call take_damage since Enemies don't use _apply_damage helper)
+	target.take_damage(damage, is_crit)
 	
+	# Battle logic removed the text log, so we just play sound/anim here or rely on take_damage
 	Audio.play_action_sound("hurt")
 	target.play_anim("hurt")
 	
-	await SignalBus.text_window_closed
+	if is_crit:
+		# Juice handled in take_damage
+		SignalBus.display_text.emit("CRITICAL HIT!")
+		await SignalBus.text_window_closed
+	else:
+		await wait_with_skip(0.5)
+	
 	await get_tree().create_timer(0.1).timeout
 	
 	# Check for Death

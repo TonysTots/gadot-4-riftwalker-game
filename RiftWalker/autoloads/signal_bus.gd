@@ -11,3 +11,8 @@ signal battle_lost
 
 signal label_index_changed(newIndex: int)
 signal selected_label
+
+# --- NEW: Juice Signals ---
+signal request_camera_shake(intensity: float, duration: float)
+signal request_hit_stop(time_scale: float, duration: float)
+# --------------------------
