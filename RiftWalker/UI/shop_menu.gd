@@ -149,6 +149,7 @@ func _on_confirm_buy(buyer: AllyStats) -> void:
 		
 		# Feedback
 		Audio.btn_pressed.play() 
+		Audio.purchase.play()
 		Global.save_game()
 		update_ui()
 		

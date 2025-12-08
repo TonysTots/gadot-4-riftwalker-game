@@ -18,9 +18,12 @@ var current_round: int = 1
 var starting_round: int = 1
 
 var upgrade_points_pending: int = 1
+var highest_round: int = 1
+var lifetime_coins: int = 0
 
 var access_token: String = ""
 var user_id: String = ""
+var device_id: String = ""
 
 # SAVE SYSTEM CONSTANTS
 const SAVE_PATH = "user://savegame.save"
@@ -33,6 +36,11 @@ var all_battles: Array[BattleData] = [
 
 func _ready() -> void:
 	load_game() # Load coins when the game starts
+	
+	# If no save file existed or device_id was missing, generate one now
+	if device_id == "":
+		device_id = OS.get_unique_id()
+		save_game()
 	
 	# Ensure we have a valid battle ready
 	pick_new_battle()
@@ -49,7 +57,10 @@ func save_game() -> void:
 		"coins": coins,
 		"game_speed": game_speed,
 		"current_round": current_round,
-		"starting_round": starting_round # --- NEW: Save preference ---
+		"starting_round": starting_round, # --- NEW: Save preference ---
+		"highest_round": highest_round,
+		"lifetime_coins": lifetime_coins,
+		"device_id": device_id
 	}
 	file.store_string(JSON.stringify(data))
 
@@ -74,6 +85,14 @@ func load_game() -> void:
 			current_round = data["current_round"]
 		if data.has("starting_round"): 
 			starting_round = data["starting_round"]
+		if data.has("highest_round"):
+			highest_round = data["highest_round"]
+		if data.has("lifetime_coins"):
+			lifetime_coins = data["lifetime_coins"]
+		if data.has("device_id"):
+			device_id = data["device_id"]
+	
+
 
 # Returns the difficulty multiplier for the current round.
 # Round 1 = 1.0, Round 2 = 1.05, Round 10 = 5.05 (approx)
@@ -82,3 +101,9 @@ func get_current_difficulty_multiplier() -> float:
 		return 1.0
 	return 1.0 + (pow(current_round - 1, 2) * 0.05)
 	
+func update_lifetime_stats(round_reached: int, coins_gained_in_battle: int) -> void:
+	if round_reached > highest_round:
+		highest_round = round_reached
+	
+	lifetime_coins += coins_gained_in_battle
+	save_game()

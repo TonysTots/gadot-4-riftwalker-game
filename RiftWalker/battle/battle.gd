@@ -13,6 +13,7 @@ const ALLY_BATTLER = preload("res://ally_battler/ally_battler.tscn")
 const ENEMY_BATTLER = preload("res://enemy_battler/enemy_battler.tscn")
 const SETTINGS_SCENE = preload("res://UI/settings_menu.tscn")
 var settings_instance: CanvasLayer = null
+var battle_ended: bool = false
 
 func _ready() -> void:
 	# Load battle data:
@@ -94,6 +95,7 @@ func _input(event: InputEvent) -> void:
 		SignalBus.text_window_closed.emit()
 
 func let_battlers_decide_actions() -> void:
+	if battle_ended: return
 	for battler: Battler in battlers:
 		if battler.isDefeated: continue
 		battler.set_process(true)
@@ -110,16 +112,48 @@ func sort_battlers_by_speed(a: Battler, b: Battler) -> bool:
 		return true
 	return false
 
+# --- REFACTORED TURN LOGIC ---
+var current_battler_index: int = 0
+
 func let_battlers_perform_action() -> void:
-	for battler: Battler in battlersSortedSpeed:
-		if battler.isDefeated: continue
-		battler.set_process(true)
-		battler.perform_action()
-		await battler.performing_action_finished
-		battler.set_process(false)
+	if battle_ended: return
+	
+	current_battler_index = 0
+	process_next_battler()
+
+func process_next_battler() -> void:
+	if battle_ended: return
+	
+	# Check if we are done with all battlers
+	if current_battler_index >= battlersSortedSpeed.size():
+		print("DEBUG: All battlers finished. Ending turn phase.")
+		finish_turn_phase()
+		return
+		
+	var battler: Battler = battlersSortedSpeed[current_battler_index]
+	print("DEBUG: Processing battler " + battler.name + " (Index: " + str(current_battler_index) + ")")
+	
+	if battler.isDefeated:
+		current_battler_index += 1
+		process_next_battler()
+		return
+
+	battler.set_process(true)
+	battler.perform_action()
+	
+	# Wait for this specific battler to finish
+	await battler.performing_action_finished
+	print("DEBUG: Battler " + battler.name + " finished action.")
+	
+	battler.set_process(false)
+	current_battler_index += 1
+	process_next_battler() # Recursively call next
+
+func finish_turn_phase() -> void:
 	free_defeated_battlers()
 	await get_tree().create_timer(0.01).timeout 
 	let_battlers_decide_actions()
+# -----------------------------
 
 func free_defeated_battlers() -> void:
 	for battler: Battler in battlers:
@@ -166,16 +200,23 @@ func get_party_leader_name() -> String:
 	return "Unknown"
 
 func on_battle_won() -> void:
+	if battle_ended: return
+	battle_ended = true
 	$Cursor/AnimationPlayer.play("fade")
 	
 	var coins_earned = calculate_loot()
 	Global.coins += coins_earned
 	Global.current_round += 1
+	
+	# --- NEW: Update Lifetime Stats ---
+	Global.update_lifetime_stats(Global.current_round, coins_earned)
+	# ----------------------------------
+	
 	Global.save_game()
 	
-	# --- NEW: Upload Win Stats ---
+	# --- NEW: Upload Win Stats (Use Lifetime Values) ---
 	if AuthManager:
-		AuthManager.upload_run_data(Global.current_round, Global.coins, get_party_leader_name())
+		AuthManager.upload_run_data(Global.highest_round, Global.lifetime_coins, get_party_leader_name())
 	# -----------------------------
 	
 	var reward_text = "Battle Won!\n\nLoot Found:\n" + str(coins_earned) + " Coins"
@@ -206,11 +247,13 @@ func reset_stats() -> void:
 				stats.spirit = 2
 
 func on_battle_lost() -> void:
+	if battle_ended: return
+	battle_ended = true
 	$Cursor/AnimationPlayer.play("fade")
 	
-	# --- NEW: Upload Loss Stats ---
+	# --- NEW: Upload Loss Stats (Use Lifetime Values) ---
 	if AuthManager:
-		AuthManager.upload_run_data(Global.current_round, Global.coins, get_party_leader_name())
+		AuthManager.upload_run_data(Global.highest_round, Global.lifetime_coins, get_party_leader_name())
 	# ------------------------------
 
 	SignalBus.display_text.emit("Battle lost...")

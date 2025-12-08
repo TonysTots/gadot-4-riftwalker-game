@@ -3,7 +3,7 @@ extends Control
 signal login_finished
 
 @onready var email_input: LineEdit = %UsernameInput
-@onready var password_input: LineEdit = %PasswordInput
+# @onready var password_input: LineEdit = %PasswordInput
 @onready var login_button: Button = %LoginButton
 @onready var status_label: Label = %StatusLabel
 @onready var back_button: Button = %BackButton
@@ -16,7 +16,7 @@ func _ready() -> void:
 	setup_ui_sounds(login_button)
 	setup_ui_sounds(back_button)
 	setup_ui_sounds(email_input)
-	setup_ui_sounds(password_input)
+	# setup_ui_sounds(password_input)
 	# -------------------------
 
 	if AuthManager:
@@ -33,15 +33,16 @@ func _on_login_pressed() -> void:
 	Audio.btn_pressed.play() # <--- Add Sound
 	
 	var email = email_input.text.strip_edges()
-	var password = password_input.text.strip_edges()
+	# var password = password_input.text.strip_edges()
 	
-	if email == "" or password == "":
-		status_label.text = "Please enter email and password."
+	if email == "":
+		status_label.text = "Please enter a username."
 		return
 	
 	login_button.disabled = true
+	status_label.modulate = Color.WHITE
 	status_label.text = "Connecting..."
-	AuthManager.login(email, password)
+	AuthManager.login(email)
 
 func _on_back_pressed() -> void:
 	Audio.btn_pressed.play() # <--- Add Sound
@@ -52,7 +53,8 @@ func _on_back_pressed() -> void:
 func _on_login_success(_user_data: Dictionary) -> void:
 	status_label.text = "Success!"
 	status_label.modulate = Color.GREEN
-	await get_tree().create_timer(1.0).timeout
+	status_label.show() # Ensure it's visible
+	await get_tree().create_timer(2.0).timeout # increased to 2.0s
 	hide()
 	login_finished.emit()
 

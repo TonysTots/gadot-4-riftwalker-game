@@ -19,6 +19,9 @@ var isSelecting: bool = false
 const SETTINGS_SCENE = preload("res://UI/settings_menu.tscn")
 var settings_instance: CanvasLayer = null
 
+const LEADERBOARD_SCENE = preload("res://UI/leaderboard_menu.tscn")
+var leaderboard_instance: Control = null
+
 func _ready() -> void:
 	$ChooseBattle.hide() # Updated path
 	
@@ -63,6 +66,8 @@ func _ready() -> void:
 	%StartGameButton.pressed.connect(_on_start_game_button_pressed)
 	%SettingsButton.pressed.connect(_on_settings_button_pressed)
 	%ShopButton.pressed.connect(_on_shop_button_pressed)
+	if has_node("%LeaderboardButton"):
+		%LeaderboardButton.pressed.connect(_on_leaderboard_button_pressed)
 
 func begin_battle() -> void:
 	Audio.btn_pressed.play()
@@ -137,6 +142,15 @@ func _on_login_button_pressed() -> void:
 func _on_quit_button_pressed() -> void:
 	Audio.btn_pressed.play()
 	get_tree().quit()
+
+func _on_leaderboard_button_pressed() -> void:
+	Audio.btn_pressed.play()
+	if leaderboard_instance == null:
+		leaderboard_instance = LEADERBOARD_SCENE.instantiate()
+		add_child(leaderboard_instance)
+	
+	leaderboard_instance.show()
+
 
 func setup_button_sounds(button: Button) -> void:
 	if not button: return

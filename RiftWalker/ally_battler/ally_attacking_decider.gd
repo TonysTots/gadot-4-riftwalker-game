@@ -104,7 +104,12 @@ func select_all_enemies_and_finish() -> void:
 	parent.deciding_finished.emit()
 
 func finish_selecting():
-	parent.targetBattlers.append(get_tree().get_nodes_in_group("enemies")[enemyIndex])
+	var enemies = get_tree().get_nodes_in_group("enemies")
+	if enemies.size() == 0:
+		cancel_action()
+		return
+
+	parent.targetBattlers.append(enemies[enemyIndex])
 	isSelecting = false
 	currentSelectionType = NOT_SELECTING
 	for label: Label in parent.options_container.get_children():

@@ -3,9 +3,10 @@ extends Node
 # Signals to tell the Login Menu what happened
 signal login_success(user_data: Dictionary)
 signal login_failed(error_message: String)
+signal leaderboard_received(data: Array) # --- NEW ---
 
 # Placeholder URL (Update this when your teammate gives you the real one!)
-const API_URL = "https://example.com/api" 
+const API_URL = "http://localhost:5296/api" 
 const API_KEY = "optional_key_if_using_supabase" 
 
 # Create the HTTP node strictly for code use
@@ -16,12 +17,14 @@ func _ready() -> void:
 	http_request.request_completed.connect(_on_request_completed)
 
 # The function your Login Button calls
-func login(email, password) -> void:
+func login(username) -> void:
 	http_request.cancel_request()
 	
+	print("Logging in with: ", username, " DeviceID: ", Global.device_id)
+	
 	var body = JSON.stringify({
-		"email": email,
-		"password": password
+		"Username": username, 
+		"DeviceId": Global.device_id
 	})
 	
 	var headers = ["Content-Type: application/json"]
@@ -78,3 +81,18 @@ func _on_request_completed(_result, response_code, _headers, body):
 			login_success.emit({}) 
 	else:
 		login_failed.emit("Login Failed. Code: " + str(response_code))
+
+# --- NEW: Leaderboard Fetch ---
+func get_leaderboard() -> void:
+	var req = HTTPRequest.new()
+	add_child(req)
+	req.request_completed.connect(func(_result, response_code, _headers, body):
+		if response_code == 200:
+			var json = JSON.parse_string(body.get_string_from_utf8())
+			leaderboard_received.emit(json)
+		else:
+			leaderboard_received.emit([])
+		req.queue_free()
+	)
+	
+	req.request(API_URL + "/leaderboard")

@@ -1,0 +1,90 @@
+[gd_scene load_steps=5 format=3 uid="uid://cb77ty6ww5abc"]
+
+[ext_resource type="Script" uid="uid://cb77ty6ww5xyz" path="res://UI/leaderboard_menu.gd" id="1_leader"]
+[ext_resource type="Texture2D" uid="uid://bkx22jvnlshd0" path="res://assets/sprites/Border EB.png" id="2_border"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_main"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_border"]
+texture = ExtResource("2_border")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
+expand_margin_left = 10.0
+expand_margin_top = 10.0
+expand_margin_right = 10.0
+expand_margin_bottom = 10.0
+
+[node name="LeaderboardMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_leader")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -175.0
+offset_top = -140.0
+offset_right = 175.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_main")
+
+[node name="MainVBox" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="PanelContainer/MainVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Leaderboard"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MainVBox/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="LoadingLabel" type="Label" parent="PanelContainer/MainVBox/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+text = "Loading..."
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MainVBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="RefreshButton" type="Button" parent="PanelContainer/MainVBox/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Refresh"
+
+[node name="BackButton" type="Button" parent="PanelContainer/MainVBox/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Back"

@@ -99,6 +99,11 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Settings"
 
+[node name="LeaderboardButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Leaderboard"
+
 [node name="LoginButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2

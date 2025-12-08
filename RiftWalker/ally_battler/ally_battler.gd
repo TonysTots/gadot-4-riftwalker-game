@@ -161,6 +161,7 @@ func decide_action() -> void:
 ## Lets the [AllyBattler] perform the [AllyAction] that they chose in
 ## [method AllyBattler.decide_action]
 func perform_action() -> void:
+	print("DEBUG: Ally " + name + " starting perform_action")
 	# 1. Announce the action
 	SignalBus.cursor_come_to_me.emit(self.global_position, true)
 	SignalBus.display_text.emit(name_ + " " + actionToPerform.actionText)
@@ -194,6 +195,7 @@ func perform_action() -> void:
 
 	# 3. Cleanup
 	targetBattlers.clear()
+	print("DEBUG: Ally " + name + " emitting performing_action_finished")
 	performing_action_finished.emit()
 
 ## Method that calculates damage done to [EnemyBattler]s by performing
@@ -283,7 +285,7 @@ func _perform_attack(target: Battler) -> void:
 		SignalBus.display_text.emit("CRITICAL HIT!")
 		await SignalBus.text_window_closed
 	
-	_apply_damage(target, damage)
+	await _apply_damage(target, damage)
 
 func _perform_defend(target: Battler) -> void:
 	play_anim("defend")
@@ -304,7 +306,7 @@ func _perform_spell(target: Battler) -> void:
 		play_anim("offensive_magic")
 		Audio.action.play()
 		var damage = actionToPerform.damageAmount + magicStrength
-		_apply_damage(target, damage)
+		await _apply_damage(target, damage)
 		
 	elif actionToPerform is HealingSpell:
 		play_anim("heal_magic")
@@ -377,7 +379,12 @@ func _handle_target_defeat(target: Battler) -> void:
 	target.play_anim("defeated")
 	await get_tree().create_timer(1.0 / Global.game_speed).timeout
 	
-	SignalBus.display_text.emit(target.defeatedText)
+	if is_instance_valid(target):
+		SignalBus.display_text.emit(target.defeatedText)
+	else:
+		# Fallback if target is gone
+		SignalBus.display_text.emit("Enemy defeated!")
+
 	await SignalBus.text_window_closed
 	
 	if check_if_we_won():

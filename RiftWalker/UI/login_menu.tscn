@@ -67,21 +67,14 @@ unique_name_in_owner = true
 layout_mode = 2
 placeholder_text = "Username"
 
-[node name="PasswordInput" type="LineEdit" parent="CenterContainer/VBoxContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-placeholder_text = "Password"
-secret = true
-
 [node name="LoginButton" type="Button" parent="CenterContainer/VBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Login"
+text = "Connect"
 
 [node name="StatusLabel" type="Label" parent="CenterContainer/VBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0, 0, 1)
 
 [node name="BackButton" type="Button" parent="CenterContainer/VBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
