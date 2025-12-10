@@ -1,96 +1,131 @@
 ## Class for every enemy battler.
-##
-## This class takes an [EnemyStats] resource that contains all of the enemy's data, 
-## If you're trying to create an enemy then create an [EnemyStats] resoruce and then fill
-##  in everything and finaly add it into a battle [BattleData] resource.
-
-
 class_name EnemyBattler extends Battler
 
+# --- DATA ---
 ## Most important variable, conatins all the enemy's data.
 @export var stats: EnemyStats
-## 2nd most important variable, contains all the [EnemyAction] that this enemy
-## can possibly perform.
+
+# --- LOGICAL PROPERTIES ---
+## All the [EnemyAction] that this enemy can possibly perform.
 @onready var actions: Array[EnemyAction] = stats.actions
+## Weights for random action selection.
+var actionChances: Array[float] = []
 
-## This variable is related to how the enemy can randomaly choose [EnemyAction]s
-## from [member EnemyBattler.actions] based on specific weights, 
-## look into [method RandomNumberGenerator.rand_weighted] to learn more.
-var actionChances: Array = []
-## [RandomNumberGenerator] object.
+## Random Generator.
 var random: RandomNumberGenerator
-## The action that this enemy will perfom when [method EnemyBattler.perform_action] is called.
-var actionToPerform: EnemyAction
-var targetBattlers: Array[Battler]
 
+## The chosen action for this turn.
+var actionToPerform: EnemyAction
+## The target(s) for the action.
+var targetBattlers: Array[Battler] = []
+
+# --- UI NODES ---
 @onready var health_bar: ProgressBar = $VBoxContainer/HealthBar
 @onready var health_label: Label = %HealthLabel
+@onready var animated_sprite_2d: AnimatedSprite2D = $AnimatedSprite2D
 
-# Defending stuff:
+# --- STATE ---
 var isDefending: bool = false
-var defendAmount: int
+var defendAmount: int = 0
 
+# --- STAT PROXIES ---
+## Current Health (Logic + UI Update)
 @onready var health: int = stats.health:
 	set(val):
-		health = val
-		
-		# Update UI whenever health changes
-		if health_label:
-			health_label.text = "HP: " + str(health)
-		if health_bar:
-			health_bar.value = health
-@onready var strength: int = stats.strength
-@onready var magicStrength: int = stats.magicStrength
-@onready var defense: int = stats.defense
-@onready var speed: int = stats.speed
+		health = clamp(val, 0, max_health)
+		if health_label: health_label.text = "HP: " + str(health)
+		if health_bar: health_bar.value = health
+
+var max_health: int:
+	get: return stats.health
+var strength: int:
+	get: return stats.strength
+var magicStrength: int:
+	get: return stats.magicStrength
+var defense: int:
+	get: return stats.defense
+var speed: int:
+	get: return stats.speed
 @onready var defeatedText: String = stats.defeatedText
-@onready var animated_sprite_2d: AnimatedSprite2D = $AnimatedSprite2D
 
 func _ready() -> void:
 	super._ready()
-	check_abstract_classes()
-	randomize()
+	
+	random = RandomNumberGenerator.new()
+	random.randomize()
 	
 	name_ = stats.name_
+	opponents = "allies"
 	
-	animated_sprite_2d.scale *= stats.texture_scale
-	random = RandomNumberGenerator.new()
-	for action: EnemyAction in actions:
-		actionChances.append(action.enemyActionChance)
+	_setup_visuals()
+	_setup_actions()
 	
 	if health_bar:
-		health_bar.max_value = health
+		health_bar.max_value = max_health
 		health_bar.value = health
 		health_bar.show_percentage = false
-	self.health = stats.health
-	
-	# Load SpriteFrames:
-	animated_sprite_2d.sprite_frames = stats.spriteFrames
-	animated_sprite_2d.play("idle")
-	animated_sprite_2d.offset += stats.offset
-	# init other stuff:
-	opponents = "allies"
+		
+	# Trigger setter
+	health = health
 
+func _setup_visuals() -> void:
+	if animated_sprite_2d:
+		animated_sprite_2d.scale *= stats.texture_scale
+		animated_sprite_2d.sprite_frames = stats.spriteFrames
+		animated_sprite_2d.play("idle")
+		animated_sprite_2d.offset += stats.offset
+
+func _setup_actions() -> void:
+	for action: EnemyAction in actions:
+		actionChances.append(action.enemyActionChance)
+		
+	# Check for abstract classes (Debug safety)
+	for action: EnemyAction in actions:
+		if not (action is EnemyAttack or action is EnemyDefend):
+			push_error("Enemy Action %s is abstract! Use distinct subclasses." % action.resource_path)
+
+# --- TURN LOGIC ---
+
+## Decision Phase
 func decide_action() -> void:
-	handle_defense()
-	# Battler can't decide since it's disabled (asleep, paralyzed, etc...).
+	handle_defense() # Reset defense from previous turn
+	
+	# Status Check
 	if isDisabled:
 		actionToPerform = null
 		targetBattlers.clear()
-		await get_tree().create_timer(0.01).timeout
-		self.deciding_finished.emit()
+		await get_tree().process_frame
+		deciding_finished.emit()
 		return
-	actionToPerform = actions[random.rand_weighted(actionChances)]
+
+	# Logic: Pick Weighted Random Action
+	var chosen_idx: int = random.rand_weighted(actionChances)
+	if chosen_idx == -1: chosen_idx = 0 # Fallback
+	
+	actionToPerform = actions[chosen_idx]
+	
+	targetBattlers.clear()
+	
 	if actionToPerform is EnemyAttack:
+		var targets: Array[Node] = get_tree().get_nodes_in_group("allies")
+		if targets.is_empty():
+			# Everyone dead? Should have ended.
+			targets = [self] # Fallback to prevent crash
+			
 		if actionToPerform.actionTargetType == EnemyAttack.ActionTargetType.SINGLE_ALLY:
-			targetBattlers.append(get_tree().get_nodes_in_group("allies").pick_random())
+			# Pick one random ally
+			targetBattlers.append(targets.pick_random() as Battler)
 		elif actionToPerform.actionTargetType == EnemyAttack.ActionTargetType.ALL_ALLIES:
-			targetBattlers.assign(get_tree().get_nodes_in_group("allies").duplicate())
+			for t in targets:
+				if t is Battler: targetBattlers.append(t)
+				
 	elif actionToPerform is EnemyDefend:
 		targetBattlers.append(self)
-	await get_tree().create_timer(0.01).timeout
-	self.deciding_finished.emit()
+		
+	await get_tree().process_frame
+	deciding_finished.emit()
 
+## Execution Phase
 func perform_action() -> void:
 	SignalBus.cursor_come_to_me.emit(self.global_position, false)
 	process_immunities()
@@ -101,22 +136,22 @@ func perform_action() -> void:
 		return
 
 	# 2. Announce Action
-	SignalBus.display_text.emit(name_ + " " + actionToPerform.actionText)
-	Audio.action.stream = actionToPerform.sound
+	if actionToPerform:
+		SignalBus.display_text.emit(name_ + " " + actionToPerform.actionText)
+		Audio.action.stream = actionToPerform.sound
 	await SignalBus.text_window_closed
 
 	# 3. Perform Action on all targets
 	for battler in targetBattlers:
-		# Skip if target is already dead (unless it's a multi-target attack, logic handled below)
+		# Skip if target is already dead (unless it's a multi-target attack, but usually hitting corpses is bad UX)
 		if battler.isDefeated:
 			SignalBus.display_text.emit(battler.name_ + " has already been defeated!")
 			await SignalBus.text_window_closed
 			continue
 
 		if actionToPerform is EnemyAttack:
-			# _perform_attack returns true if the battle ends (Player lost)
-			if await _perform_attack(battler):
-				return 
+			await _perform_attack(battler)
+			if check_if_we_won(): return # If we killed last ally, end immediately
 		
 		elif actionToPerform is EnemyDefend:
 			await _perform_defend(battler)
@@ -125,35 +160,63 @@ func perform_action() -> void:
 	targetBattlers.clear()
 	performing_action_finished.emit()
 
-func check_abstract_classes() -> void:
-	for action: EnemyAction in actions:
-		if action is EnemyAttack or action is EnemyDefend:
-			pass
-		# This is an abstract class; Throw error:
-		else:
-			var class_ = action.get_script().get_global_name()
-			var path_ := action.resource_path
-			var error := "The action at: \"%s\" is an instance of the abstract class \"%s\"."
-			error += "\nMake the action inherit \"EnemyAttack\" or \"EnemyDefend\"."
-			var formated := error % [path_, class_]
-			assert(false, formated)
+# --- ACTION HANDLERS ---
 
-# Override the parent setter to also update the UI Label
-func _set_name(value: String) -> void:
-	super._set_name(value) # Call the parent function to store the string
+func _perform_attack(target: Battler) -> void:
+	play_anim("attack")
+	if Audio.action.stream: Audio.action.play()
 	
-	# Update the visual label if it exists
-	if %NameLabel:
-		%NameLabel.text = value
+	# Calculate Damage
+	var damage: int = (actionToPerform.damageAmount + strength)
+	var is_crit: bool = (randf() <= 0.1) # 10% Chance
+	
+	if is_crit: damage *= 2
+	
+	# Apply Mitigation (Consistency: Subtract Defense)
+	var final_damage: int = damage
+	if "defense" in target:
+		final_damage = clampi(damage - target.get("defense"), 0, 9999999)
+	
+	# Apply
+	target.take_damage(final_damage, is_crit)
+	
+	if is_crit:
+		SignalBus.display_text.emit("CRITICAL HIT!")
+		await SignalBus.text_window_closed
+	else:
+		await wait_with_skip(0.5)
+	
+	await get_tree().create_timer(0.1).timeout
+	
+	# Check Death
+	await _check_target_defeat(target)
 
-## Handles the defense stat.
+func _perform_defend(target: Battler) -> void:
+	play_anim("defend")
+	if Audio.action.stream: Audio.action.play()
+	
+	var defenseAmount: int = actionToPerform.defenseAmount
+	self.defense += defenseAmount
+	defendAmount = defenseAmount # Store for removal next turn
+	isDefending = true
+	
+	SignalBus.display_text.emit(target.name_ + "'s defense increased by " + str(defenseAmount) + " !")
+	Audio.play_action_sound("defend")
+	target.play_anim("defend")
+	
+	await SignalBus.text_window_closed
+
+# --- STATE MANAGEMENT ---
+
+## Reset defense buff from previous turn.
 func handle_defense() -> void:
 	if isDefending:
 		defense -= defendAmount
 		isDefending = false
+		defendAmount = 0 # Reset amount too
 
-# Handles status duration, removal, immunity, and skipping turns.
-# Returns true if the battler cannot act this turn.
+## Handles status duration, removal, immunity, and skipping turns.
+## Returns true if the battler cannot act this turn.
 func _handle_status_effects() -> bool:
 	if disablingStatusEffect == null:
 		return false # No status, proceed with turn
@@ -171,89 +234,46 @@ func _handle_status_effects() -> bool:
 		SignalBus.display_text.emit(name_ + " is now resistant to " + disablingStatusEffect.name_)
 		await SignalBus.text_window_closed
 		
+		# Cleanup
 		disablingStatusEffect = null
-		status_effect_sprite.texture = null
+		if status_effect_sprite: status_effect_sprite.texture = null
+		
+		# Turn consumed by waking up (Design choice: Waking up takes the turn?)
+		# Original code returned true here. I'll preserve it.
 		performing_action_finished.emit()
-		return true # Turn consumed by waking up
+		return true 
 	
 	# Case B: Status still active
 	SignalBus.display_text.emit(name_ + " " + disablingStatusEffect.text)
 	Audio.status_effect.stream = disablingStatusEffect.sound
 	Audio.status_effect.play()
 	await SignalBus.text_window_closed
+	
 	performing_action_finished.emit()
 	return true # Turn skipped
 
-# Handles damage calculation, animation, and death checks.
-# Returns true if the game ended.
-func _perform_attack(target: Battler) -> bool:
-	play_anim("attack")
-	Audio.action.play()
+## Checks and handles target death.
+func _check_target_defeat(target: Battler) -> void:
+	var hp: int = 1
+	if "health" in target: hp = target.get("health")
 	
-	# Calculate Damage
-	var damage: int = (actionToPerform.damageAmount + strength) - target.defense
-	var is_crit = false
-	
-	if randf() <= 0.1: # 10% Chance
-		damage *= 2
-		is_crit = true
-	
-	damage = clamp(damage, 0, 9999999)
-	
-	# Apply Damage
-	# Apply Damage (Explicitly call take_damage since Enemies don't use _apply_damage helper)
-	target.take_damage(damage, is_crit)
-	
-	# Battle logic removed the text log, so we just play sound/anim here or rely on take_damage
-	Audio.play_action_sound("hurt")
-	target.play_anim("hurt")
-	
-	if is_crit:
-		# Juice handled in take_damage
-		SignalBus.display_text.emit("CRITICAL HIT!")
-		await SignalBus.text_window_closed
-	else:
-		await wait_with_skip(0.5)
-	
-	await get_tree().create_timer(0.1).timeout
-	
-	# Check for Death
-	if target.health <= 0:
-		if await _handle_target_death(target):
-			return true # Battle Lost
-			
-	return false
-
-# Handles defense buffs and animations.
-func _perform_defend(target: Battler) -> void:
-	play_anim("defend")
-	Audio.action.play()
-	
-	var defenseAmount: int = actionToPerform.defenseAmount
-	self.defense += defenseAmount
-	defendAmount = defenseAmount # Store for removal next turn
-	isDefending = true
-	
-	SignalBus.display_text.emit(target.name_ + "'s defense increased by " + str(defenseAmount) + " !")
-	Audio.play_action_sound("defend")
-	target.play_anim("defend")
-	
-	await SignalBus.text_window_closed
-	await get_tree().create_timer(0.1).timeout
-
-# Handles the death sequence (animation, text, win condition).
-# Returns true if the enemies won (Player lost).
-func _handle_target_death(target: Battler) -> bool:
-	target.isDefeated = true
-	Audio.down.play()
-	target.play_anim("defeated")
-	await get_tree().create_timer(1.0).timeout
-	
-	SignalBus.display_text.emit(target.defeatedText)
-	await SignalBus.text_window_closed
-	
-	if check_if_we_won():
-		SignalBus.battle_lost.emit()
-		return true
+	if hp <= 0 and not target.isDefeated:
+		target.isDefeated = true
+		Audio.down.play()
+		target.play_anim("defeated")
+		await get_tree().create_timer(1.0).timeout
 		
-	return false
+		var d_text: String = "Defeated!"
+		if "defeatedText" in target: d_text = target.get("defeatedText")
+		
+		SignalBus.display_text.emit(d_text)
+		await SignalBus.text_window_closed
+		
+		if check_if_we_won():
+			SignalBus.battle_lost.emit() # Logic inversion: Enemies Check Win = Players Lost
+
+# Override set_name to update label
+func _set_name(value: String) -> void:
+	super._set_name(value)
+	if has_node("%NameLabel"):
+		%NameLabel.text = value

@@ -8,6 +8,9 @@
 script = ExtResource("2_cqxsc")
 actionTargetType = 1
 healthAmount = 60
+magicAmount = 0
+restoreAllMagic = true
+restoreAllHealth = true
 icon = ExtResource("1_xm1c3")
 price = 1000
 actionText = "released healing magic into the battlefield !"

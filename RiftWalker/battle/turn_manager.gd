@@ -7,11 +7,11 @@ var battlers_sorted: Array[Battler] = []
 var current_battler_index: int = 0
 var battle_ended: bool = false
 
-# Main entry point for a new turn
-func start_turn(new_battlers: Array) -> void:
+## Main entry point for a new turn.
+func start_turn(new_battlers: Array[Node]) -> void:
 	if battle_ended: return
 	
-	battlers = []
+	battlers.clear()
 	# Safe cast
 	for b in new_battlers:
 		if b is Battler: battlers.append(b)
@@ -27,8 +27,6 @@ func _let_battlers_decide() -> void:
 		battler.set_process(true)
 		battler.decide_action()
 		
-		# We await each one to ensure they are ready, but we could optimize to parallel
-		# For now, keeping original logic which awaited individually
 		await battler.deciding_finished
 		battler.set_process(false)
 		
@@ -48,7 +46,7 @@ func _process_next_battler() -> void:
 		turn_phase_finished.emit()
 		return
 		
-	var battler = battlers_sorted[current_battler_index]
+	var battler: Battler = battlers_sorted[current_battler_index]
 	
 	# Skip Dead
 	if battler.isDefeated:

@@ -26,6 +26,11 @@ class_name AllyStats extends Resource
 ## STAT SYSTEM (Body / Mind / Spirit)
 #####################################
 @export_category("Base Stats")
+# Base values to reset to after a run
+@export var base_body: int = 1
+@export var base_mind: int = 1
+@export var base_spirit: int = 1
+
 ## Represents physical power and durability.
 @export_range(1, 100) var body: int = 1:
 	set(value):
@@ -44,16 +49,31 @@ class_name AllyStats extends Resource
 		spirit = value
 		notify_property_list_changed()
 
+@export_category("Persistent State")
+## Damage Taken (Persists between battles)
+var damage_taken: int = 0
+## Mana Used (Persists between battles)
+var mana_used: int = 0
+
+func reset_to_base() -> void:
+	body = base_body
+	mind = base_mind
+	spirit = base_spirit
+	
+	# Reset persistent state (Heal fully)
+	damage_taken = 0
+	mana_used = 0
+
 #############################################
 # DERIVED STATS (Calculated automatically)
 #############################################
 # Used standard RPG formulas here. 
 
-## Health = (Body + Spirit) * 5
+## Health = (Body + Spirit) * 20 (MAX HEALTH)
 var health: int:
 	get: return (body + spirit) * 20
 
-## Magic Points = (Mind + Spirit) * 2
+## Magic Points = (Mind + Spirit) * 5 (MAX MP)
 var magicPoints: int:
 	get: return (mind + spirit) * 5
 

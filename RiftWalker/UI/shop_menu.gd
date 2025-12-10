@@ -16,76 +16,64 @@ extends CanvasLayer
 @onready var char_buttons_container: VBoxContainer = $BuyPopup/VBoxContainer/CharacterButtons
 @onready var cancel_button: Button = $BuyPopup/VBoxContainer/CancelButton
 
-# State to remember what we are trying to buy
+# --- STATE ---
 var selected_item_to_buy: Item
-
-# Tracks which "Insufficient Funds" timer is currently active
 var msg_timer_id: int = 0
 
+const BORDER_TEXTURE_PATH: String = "res://assets/sprites/Border EB.png"
+const MAP_SCENE_PATH: String = "res://UI/map_screen.tscn"
+const TITLE_SCENE_PATH: String = "res://UI/title_screen.tscn"
+
 func _ready() -> void:
-	ScreenFade.fade_into_game() # 1. Fade In
-	update_ui()
+	ScreenFade.fade_into_game() 
+	
+	_setup_ui()
+	_populate_shop()
+	
 	Audio.store_bell.play()
-	
-	# Clear placeholders
-	for child in shop_grid.get_children():
-		child.queue_free()
-	
-	# Generate the shop shelf
-	for item in items_for_sale:
-		create_item_listing(item)
-		
+
+func _setup_ui() -> void:
 	close_button.pressed.connect(_on_close_pressed)
 	cancel_button.pressed.connect(_on_cancel_popup_pressed)
+	
 	setup_button_sounds(close_button)
 	setup_button_sounds(cancel_button)
+	
+	update_ui()
 
 func update_ui() -> void:
 	coin_label.text = "Coins: " + str(Global.coins)
 
-# --- 3. LAYOUT REDESIGN: Main Shelf ---
+func _populate_shop() -> void:
+	for child in shop_grid.get_children():
+		child.queue_free()
+	
+	for item in items_for_sale:
+		create_item_listing(item)
+
 func create_item_listing(item: Item) -> void:
-	# 1. Create the Box
-	var item_box = PanelContainer.new()
-	
-	# --- NEW: CUSTOM BORDER STYLE ---
-	var style = StyleBoxTexture.new()
-	# Make sure this path matches exactly where your file is!
-	style.texture = load("res://assets/sprites/Border EB.png")
-	
-	# 5px Texture Margins (This protects the corners from stretching)
-	style.texture_margin_left = 5
-	style.texture_margin_top = 5
-	style.texture_margin_right = 5
-	style.texture_margin_bottom = 5
-	
-	# 5px Expand Margins (This makes the border draw 10px outside the box bounds)
-	style.expand_margin_left = 5
-	style.expand_margin_top = 5
-	style.expand_margin_right = 5
-	style.expand_margin_bottom = 5
-	
-	# Apply the style to this specific panel
+	# 1. Create the Box with Border
+	var item_box: PanelContainer = PanelContainer.new()
+	var style: StyleBoxTexture = _create_border_style()
 	item_box.add_theme_stylebox_override("panel", style)
-	# --------------------------------
 	
 	shop_grid.add_child(item_box)
 	
-	# 2. Add Margins (To keep text away from the border edges)
-	var margins = MarginContainer.new()
+	# 2. Add Margins
+	var margins: MarginContainer = MarginContainer.new()
 	margins.add_theme_constant_override("margin_top", 10)
 	margins.add_theme_constant_override("margin_left", 10)
 	margins.add_theme_constant_override("margin_bottom", 10)
 	margins.add_theme_constant_override("margin_right", 10)
 	item_box.add_child(margins)
 	
-	# 3. Create the Layout inside the Margins
-	var vbox = VBoxContainer.new()
+	# 3. Create Inner Layout
+	var vbox: VBoxContainer = VBoxContainer.new()
 	margins.add_child(vbox)
 	
-	# --- ICON DISPLAY ---
+	# Icon
 	if item.icon:
-		var icon_rect = TextureRect.new()
+		var icon_rect: TextureRect = TextureRect.new()
 		icon_rect.texture = item.icon
 		icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -94,86 +82,97 @@ func create_item_listing(item: Item) -> void:
 		vbox.add_child(icon_rect)
 	
 	# Name
-	var name_lbl = Label.new()
+	var name_lbl: Label = Label.new()
 	name_lbl.text = item.actionName
 	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(name_lbl)
 	
 	# Price
-	var price_lbl = Label.new()
+	var price_lbl: Label = Label.new()
 	price_lbl.text = str(item.price) + " G"
 	price_lbl.modulate = Color.YELLOW
 	price_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(price_lbl)
 	
 	# Select Button
-	var select_btn = Button.new()
+	var select_btn: Button = Button.new()
 	select_btn.text = "Select"
 	select_btn.pressed.connect(_on_item_selected.bind(item))
 	setup_button_sounds(select_btn)
 	vbox.add_child(select_btn)
 
+func _create_border_style() -> StyleBoxTexture:
+	var style: StyleBoxTexture = StyleBoxTexture.new()
+	style.texture = load(BORDER_TEXTURE_PATH)
+	style.texture_margin_left = 5
+	style.texture_margin_top = 5
+	style.texture_margin_right = 5
+	style.texture_margin_bottom = 5
+	style.expand_margin_left = 5
+	style.expand_margin_top = 5
+	style.expand_margin_right = 5
+	style.expand_margin_bottom = 5
+	return style
+
 # --- POPUP LOGIC ---
+
 func _on_item_selected(item: Item) -> void:
 	Audio.btn_pressed.play()
 	selected_item_to_buy = item
 	
-	# 1. Update Popup Text & Reset Color
 	popup_title.text = "Buy " + item.actionName + " for whom?"
-	popup_title.modulate = Color.WHITE # --- NEW: Reset color on open ---
+	popup_title.modulate = Color.WHITE
 	
-	# 2. Clear old buttons from previous opens
+	# Refresh Buttons
 	for child in char_buttons_container.get_children():
 		child.queue_free()
 	
-	# 3. Generate NEW buttons for each character
 	for buyer in buyers:
-		var btn = Button.new()
+		var btn: Button = Button.new()
 		btn.text = buyer.name
 		btn.pressed.connect(_on_confirm_buy.bind(buyer))
 		setup_button_sounds(btn)
 		char_buttons_container.add_child(btn)
 	
-	# 4. Show Popup
 	buy_popup.show()
 	if char_buttons_container.get_child_count() > 0:
-		char_buttons_container.get_child(0).grab_focus()
+		(char_buttons_container.get_child(0) as Button).grab_focus()
 
 func _on_confirm_buy(buyer: AllyStats) -> void:
 	if selected_item_to_buy == null: return
 	
 	if Global.coins >= selected_item_to_buy.price:
-		# Transaction
-		Global.coins -= selected_item_to_buy.price
-		buyer.items.append(selected_item_to_buy)
-		
-		# Feedback
-		Audio.btn_pressed.play() 
-		Audio.purchase.play()
-		Global.save_game()
-		update_ui()
-		
-		print("Bought item for " + buyer.name)
-		buy_popup.hide()
+		_process_transaction(buyer)
 	else:
-		# 1. Increment the ID. This effectively "invalidates" any previous timers running.
-		msg_timer_id += 1
-		var my_id = msg_timer_id
-		
-		Audio.denied.play() # Assuming you have this sound
-		buy_popup.hide()
-		
-		# 2. Show the warning
-		coin_label.hide()
-		insufficient_funds.show()
-		
-		# 3. Wait for 2 seconds
-		await get_tree().create_timer(2.0).timeout
-		
-		# 4. Check: Are we still the latest timer?
-		if my_id == msg_timer_id:
-			insufficient_funds.hide()
-			coin_label.show()
+		_show_insufficient_funds()
+
+func _process_transaction(buyer: AllyStats) -> void:
+	Global.coins -= selected_item_to_buy.price
+	buyer.items.append(selected_item_to_buy)
+	
+	Audio.btn_pressed.play() 
+	Audio.purchase.play()
+	
+	Global.save_game()
+	update_ui()
+	
+	buy_popup.hide()
+
+func _show_insufficient_funds() -> void:
+	msg_timer_id += 1
+	var my_id: int = msg_timer_id
+	
+	Audio.denied.play()
+	buy_popup.hide()
+	
+	coin_label.hide()
+	insufficient_funds.show()
+	
+	await get_tree().create_timer(2.0).timeout
+	
+	if my_id == msg_timer_id:
+		insufficient_funds.hide()
+		coin_label.show()
 
 func _on_cancel_popup_pressed() -> void:
 	Audio.btn_pressed.play()
@@ -182,16 +181,15 @@ func _on_cancel_popup_pressed() -> void:
 func _on_close_pressed() -> void:
 	Audio.btn_pressed.play()
 	Audio.store_bell.play()
-	# 1. Fade Out
+	
 	ScreenFade.fade_into_black()
 	await get_tree().create_timer(0.5).timeout
 	
 	if Global.map_data != null:
-		get_tree().change_scene_to_file("res://UI/map_screen.tscn")
+		get_tree().change_scene_to_file(MAP_SCENE_PATH)
 	else:
-		get_tree().change_scene_to_file("res://UI/title_screen.tscn")
+		get_tree().change_scene_to_file(TITLE_SCENE_PATH)
 
-# --- 2. AUDIO HELPER ---
 func setup_button_sounds(button: Button) -> void:
-	button.mouse_entered.connect(func(): Audio.btn_mov.play())
-	button.focus_entered.connect(func(): Audio.btn_mov.play())
+	button.mouse_entered.connect(func() -> void: Audio.btn_mov.play())
+	button.focus_entered.connect(func() -> void: Audio.btn_mov.play())

@@ -1,70 +1,79 @@
 extends Control
 
+# --- DATA ---
 @export var party_stats: Array[AllyStats]
-const BATTLE_SCENE_PATH = "res://battle/battle.tscn"
+const MAP_SCENE_PATH: String = "res://UI/map_screen.tscn"
 
-# Stack to track actions for Undo
-var action_history: Array = []
+# --- STATE ---
+# Stack to track actions for Undo: Array[Dictionary]
+var action_history: Array[Dictionary] = []
 
-# Track points spent per ally: { ResourceInstanceID : int_count }
+# Track points spent per ally: { int (InstanceID) : int (Count) }
 var upgrades_spent: Dictionary = {}
 
 # Upgrade Mode: 1 = 1x, 10 = 10x, 0 = Max
 var current_mode: int = 1 
 var mode_buttons: Array[Button] = []
 
+# --- NODES ---
+@onready var bgm_player: AudioStreamPlayer = $BGM
+@onready var hero_container: HBoxContainer = %HeroContainer
+@onready var undo_button: Button = %UndoButton
+@onready var start_button: Button = %StartButton
+
 func _ready() -> void:
 	ScreenFade.fade_into_game()
 	
-	# Explicitly play music
-	if has_node("BGM"):
-		var bgm = $BGM
-		var stream = bgm.stream as AudioStreamMP3
+	_setup_audio()
+	_setup_ui()
+	_initialize_points_tracking()
+	_setup_start_button_text()
+	
+	create_mode_selector()
+	_refresh_hero_columns()
+	check_start_condition()
+
+func _setup_audio() -> void:
+	if bgm_player:
+		var stream: AudioStreamMP3 = bgm_player.stream as AudioStreamMP3
 		if stream:
 			stream.loop = true
-			stream.loop = true
 			stream.loop_offset = 2.5 # Skip 2.5s of silence on loop
-			
+		
 		# Play from 2.5s to skip initial silence (Overrides Autoplay)
-		bgm.play(2.5)
+		bgm_player.play(2.5)
+
+func _setup_ui() -> void:
+	undo_button.pressed.connect(_on_undo_pressed)
+	start_button.pressed.connect(_on_start_battle_pressed)
 	
-	# Setup Global Buttons
-	%UndoButton.pressed.connect(_on_undo_pressed)
-	%StartButton.pressed.connect(_on_start_battle_pressed)
-	
-	# Initial UI State
-	%UndoButton.disabled = true
-	%StartButton.disabled = true
-	
-	# Initialize point tracking
+	undo_button.disabled = true
+	start_button.disabled = true
+
+func _initialize_points_tracking() -> void:
 	for stats in party_stats:
 		upgrades_spent[stats.get_instance_id()] = 0
-		
-	# Button Text Update
-	# Just check if anyone has points
-	var any_points = false
+
+func _setup_start_button_text() -> void:
+	var any_points: bool = false
 	for stats in party_stats:
 		if get_points_limit(stats.name) > 0:
 			any_points = true
 			break
 			
 	if any_points:
-		%StartButton.text = "Finish"
+		start_button.text = "Finish"
 	else:
-		%StartButton.text = "Fight!"
+		start_button.text = "Fight!"
 
-	create_mode_selector()
-	
-	# Clear old columns
-	for child in %HeroContainer.get_children():
+func _refresh_hero_columns() -> void:
+	for child in hero_container.get_children():
 		child.queue_free()
 	
-	# Create new columns
 	for stats in party_stats:
 		create_hero_column(stats)
-		
-	# Ensure the button is enabled correctly on startup
-	check_start_condition()
+
+# --- LOGIC ---
 
 func get_points_limit(char_name: String) -> int:
 	if char_name in Global.party_points:
@@ -72,12 +81,12 @@ func get_points_limit(char_name: String) -> int:
 	return 0
 
 func create_mode_selector() -> void:
-	var bottom_bar = %UndoButton.get_parent()
-	var group = ButtonGroup.new()
+	var bottom_bar: Node = undo_button.get_parent()
+	var group: ButtonGroup = ButtonGroup.new()
 	
-	var btn_1 = create_mode_btn("1x", 1, group)
-	var btn_10 = create_mode_btn("10x", 10, group)
-	var btn_max = create_mode_btn("MAX", 0, group)
+	var btn_1: Button = create_mode_btn("1x", 1, group)
+	var btn_10: Button = create_mode_btn("10x", 10, group)
+	var btn_max: Button = create_mode_btn("MAX", 0, group)
 	
 	bottom_bar.add_child(btn_1)
 	bottom_bar.add_child(btn_10)
@@ -86,10 +95,10 @@ func create_mode_selector() -> void:
 	bottom_bar.move_child(btn_1, 1)
 	bottom_bar.move_child(btn_10, 2)
 	bottom_bar.move_child(btn_max, 3)
-	bottom_bar.move_child(%StartButton, 4)
+	bottom_bar.move_child(start_button, 4)
 
 func create_mode_btn(text: String, mode: int, group: ButtonGroup) -> Button:
-	var btn = Button.new()
+	var btn: Button = Button.new()
 	btn.text = text
 	btn.toggle_mode = true
 	btn.button_group = group
@@ -98,15 +107,18 @@ func create_mode_btn(text: String, mode: int, group: ButtonGroup) -> Button:
 	
 	if mode == 1: btn.button_pressed = true
 	
-	btn.pressed.connect(func(): 
+	btn.pressed.connect(func() -> void: 
 		Audio.btn_pressed.play()
 		current_mode = mode
 	)
 	return btn
 
 func create_hero_column(stats: AllyStats) -> void:
+	# Simplified VBox (Pre-Makeover style)
 	var vbox = VBoxContainer.new()
-	%HeroContainer.add_child(vbox)
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	hero_container.add_child(vbox)
 
 	# 1. VISUALS
 	var sprite_holder = Control.new()
@@ -125,6 +137,7 @@ func create_hero_column(stats: AllyStats) -> void:
 	var points_label = Label.new()
 	points_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	points_label.add_theme_color_override("font_color", Color.YELLOW)
+	points_label.add_theme_font_size_override("font_size", 10) # Smaller
 	vbox.add_child(points_label)
 	
 	# 3. NAME LABEL
@@ -144,12 +157,10 @@ func create_hero_column(stats: AllyStats) -> void:
 
 	# 5. BUTTONS
 	vbox.add_child(HSeparator.new())
-	# --- FIXED: Now passing stats_label to the button creator ---
 	create_upgrade_button(vbox, stats, "Body", "body", sprite, stats_label)
 	create_upgrade_button(vbox, stats, "Mind", "mind", sprite, stats_label)
 	create_upgrade_button(vbox, stats, "Spirit", "spirit", sprite, stats_label)
 
-# --- FIXED: Function now accepts label_node ---
 func create_upgrade_button(parent: VBoxContainer, stats: AllyStats, label_text: String, stat_name: String, sprite: AnimatedSprite2D, label_node: RichTextLabel) -> void:
 	var btn = Button.new()
 	btn.text = label_text 
@@ -159,14 +170,13 @@ func create_upgrade_button(parent: VBoxContainer, stats: AllyStats, label_text: 
 	btn.mouse_entered.connect(btn.grab_focus)
 	btn.focus_entered.connect(Audio.btn_mov.play)
 	
-	# --- FIXED: Re-added Preview Logic ---
 	# Preview on Hover
-	btn.mouse_entered.connect(func(): show_preview(label_node, stats, stat_name))
-	btn.focus_entered.connect(func(): show_preview(label_node, stats, stat_name))
+	btn.mouse_entered.connect(func() -> void: show_preview(label_node, stats, stat_name))
+	btn.focus_entered.connect(func() -> void: show_preview(label_node, stats, stat_name))
 	
 	# Reset on Leave
-	btn.mouse_exited.connect(func(): update_labels(parent, stats))
-	btn.focus_exited.connect(func(): update_labels(parent, stats))
+	btn.mouse_exited.connect(func() -> void: update_labels(parent, stats))
+	btn.focus_exited.connect(func() -> void: update_labels(parent, stats))
 	
 	# Logic
 	btn.pressed.connect(_on_upgrade_clicked.bind(stats, stat_name, parent, sprite))
@@ -175,21 +185,20 @@ func _on_upgrade_clicked(stats: AllyStats, stat_name: String, column: VBoxContai
 	Audio.btn_pressed.play()
 	
 	# Calculate amounts
-	var limit = get_points_limit(stats.name)
-	var id = stats.get_instance_id()
-	# available IS limit because Global decreases on spend
-	var available = limit
+	var limit: int = get_points_limit(stats.name)
+	var id: int = stats.get_instance_id()
+	var available: int = limit
 	
 	if available <= 0: return
 
 	# Determine how much to add based on mode
-	var amount = 0
+	var amount: int = 0
 	if current_mode == 1: amount = 1
 	elif current_mode == 10: amount = 10
 	elif current_mode == 0: amount = available # Max
 	
 	# Clamp to what is actually available
-	amount = min(amount, available)
+	amount = mini(amount, available)
 	
 	if amount <= 0: return
 
@@ -204,6 +213,7 @@ func _on_upgrade_clicked(stats: AllyStats, stat_name: String, column: VBoxContai
 		sprite.animation_finished.connect(_on_sprite_anim_done.bind(sprite), CONNECT_ONE_SHOT)
 	
 	# Track
+	if not upgrades_spent.has(id): upgrades_spent[id] = 0
 	upgrades_spent[id] += amount
 	
 	if stats.name in Global.party_points:
@@ -224,17 +234,18 @@ func _on_undo_pressed() -> void:
 	if action_history.is_empty(): return
 	Audio.btn_pressed.play()
 	
-	var action = action_history.pop_back()
-	var stats = action["stats"]
-	var amount = action["amount"]
-	var col = action["column"]
+	var action: Dictionary = action_history.pop_back()
+	var stats: AllyStats = action["stats"]
+	var amount: int = action["amount"]
+	var col: VBoxContainer = action["column"]
 	
 	# Revert
 	if action["stat"] == "body": stats.body -= amount
 	elif action["stat"] == "mind": stats.mind -= amount
 	elif action["stat"] == "spirit": stats.spirit -= amount
 	
-	upgrades_spent[stats.get_instance_id()] -= amount
+	var id: int = stats.get_instance_id()
+	upgrades_spent[id] -= amount
 	
 	if stats.name in Global.party_points:
 		Global.party_points[stats.name] += amount
@@ -245,91 +256,79 @@ func _on_undo_pressed() -> void:
 func update_ui_state(column: VBoxContainer, stats: AllyStats) -> void:
 	update_labels(column, stats)
 	
-	var limit = get_points_limit(stats.name)
-	# Since Global decreases, limit IS available.
-	# is_full if no points left
-	var is_full = limit <= 0
+	var limit: int = get_points_limit(stats.name)
+	var is_full: bool = (limit <= 0)
 	
 	for child in column.get_children():
 		if child is Button:
 			child.disabled = is_full
 
 	check_start_condition()
-	%UndoButton.disabled = action_history.is_empty()
+	undo_button.disabled = action_history.is_empty()
 
 func update_labels(column: VBoxContainer, stats: AllyStats) -> void:
 	# Points Label is Index 1
-	var pts_label = column.get_child(1) as Label
+	var pts_label: Label = column.get_child(1) as Label
 
-	var available = get_points_limit(stats.name)
+	var available: int = get_points_limit(stats.name)
 	pts_label.text = "Points: " + str(available)
 	
 	# Stats RichTextLabel is Index 3
-	var stats_label = column.get_child(3) as RichTextLabel
-	var derived = calculate_derived_stats(stats.body, stats.mind, stats.spirit)
+	var stats_label: RichTextLabel = column.get_child(3) as RichTextLabel
+	var derived: Dictionary = calculate_derived_stats(stats.body, stats.mind, stats.spirit)
 	stats_label.text = format_stats_text(derived, derived)
 
-# --- FIXED: Show Preview Calculation ---
 func show_preview(label: RichTextLabel, stats: AllyStats, buff_stat: String) -> void:
-	var current = calculate_derived_stats(stats.body, stats.mind, stats.spirit)
+	var current: Dictionary = calculate_derived_stats(stats.body, stats.mind, stats.spirit)
 	
-	# Calculate potential increase based on mode
-	# var id = stats.get_instance_id()  <-- Unused
-	var available = get_points_limit(stats.name)
-	var amount = 0
+	var available: int = get_points_limit(stats.name)
+	var amount: int = 0
 	
 	if current_mode == 1: amount = 1
 	elif current_mode == 10: amount = 10
 	elif current_mode == 0: amount = available
 	
-	amount = min(amount, available)
+	amount = mini(amount, available)
 	
 	if amount <= 0:
-		# No increase possible, just show current
 		label.text = format_stats_text(current, current)
 		return
 
 	# Calculate hypothetical stats
-	var b = stats.body + (amount if buff_stat == "body" else 0)
-	var m = stats.mind + (amount if buff_stat == "mind" else 0)
-	var s = stats.spirit + (amount if buff_stat == "spirit" else 0)
+	var b: int = stats.body + (amount if buff_stat == "body" else 0)
+	var m: int = stats.mind + (amount if buff_stat == "mind" else 0)
+	var s: int = stats.spirit + (amount if buff_stat == "spirit" else 0)
 	
-	var future = calculate_derived_stats(b, m, s)
+	var future: Dictionary = calculate_derived_stats(b, m, s)
 	label.text = format_stats_text(current, future)
 
 func check_start_condition() -> void:
 	# Start is enabled always (save points logic)
-	%StartButton.disabled = false
+	start_button.disabled = false
 
 func _on_start_battle_pressed() -> void:
 	Audio.btn_pressed.play()
-	# No reset needed, points are persistent now
-		
-	# Flow Change: Go to Map, not Battle
-	get_tree().change_scene_to_file("res://UI/map_screen.tscn")
+	get_tree().change_scene_to_file(MAP_SCENE_PATH)
 
 func _on_sprite_anim_done(sprite: AnimatedSprite2D) -> void:
 	sprite.play("idle")
 
 func calculate_derived_stats(b: int, m: int, s: int) -> Dictionary:
 	return {
-		"hp": (b + s) * 5,
-		"mp": (m + s) * 2,
+		"hp": (b + s) * 20,
+		"mp": (m + s) * 5,
 		"atk": (b + m) * 2,
-		"mag": (m + s) * 2, # --- NEW: Magic Strength Calculation ---
-		"def": b + s,
-		"spd": b + m
+		"mag": (m + s) * 2,
+		"def": (b + s) * 2,
+		"spd": (b + m) * 5
 	}
 
 func format_stats_text(curr: Dictionary, fut: Dictionary) -> String:
-	var txt = "[center][font_size=10]"
+	var txt: String = "[center][font_size=10]"
 	txt += "HP: %s\n" % get_diff_string(curr.hp, fut.hp)
 	txt += "MP: %s\n" % get_diff_string(curr.mp, fut.mp)
 	txt += "ATK: %s\n" % get_diff_string(curr.atk, fut.atk)
-	
-	# --- NEW: Magic Strength Display ---
 	txt += "MAG: %s\n" % get_diff_string(curr.mag, fut.mag)
-	
 	txt += "DEF: %s\n" % get_diff_string(curr.def, fut.def)
 	txt += "SPD: %s" % get_diff_string(curr.spd, fut.spd)
 	txt += "[/font_size][/center]"

@@ -1,11 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://cifmxhin2frn6"]
+[gd_scene load_steps=7 format=3 uid="uid://cifmxhin2frn6"]
 
 [ext_resource type="Script" uid="uid://d2nm8vkrwride" path="res://UI/upgrade_menu.gd" id="1_v27ci"]
 [ext_resource type="Script" uid="uid://7vjy7gmbq5el" path="res://base_resource_classes/ally_stats.gd" id="2_4r3qf"]
 [ext_resource type="Resource" uid="uid://bbwdd2xv1bf1i" path="res://stats/ally_stats/blake.tres" id="3_3w7tv"]
 [ext_resource type="Resource" uid="uid://cghwgxhnra2og" path="res://stats/ally_stats/michael.tres" id="4_1uskd"]
 [ext_resource type="Resource" uid="uid://cnxgagq22hko" path="res://stats/ally_stats/mitchell.tres" id="5_dc6v4"]
-[ext_resource type="AudioStream" uid="uid://b0x2y5n4a1q8" path="res://assets/music/upgrade_menu.mp3" id="6_music"]
+[ext_resource type="AudioStream" uid="uid://dbb8xh07p21d3" path="res://assets/music/upgrade_menu.mp3" id="6_music"]
 
 [node name="UpgradeMenu" type="Control"]
 layout_mode = 3
@@ -29,31 +29,27 @@ color = Color(0, 0, 0, 1)
 [node name="HeroContainer" type="HBoxContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.5
+anchors_preset = 15
 anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = 10.0
-offset_bottom = -40.0
+anchor_bottom = 1.0
+offset_left = 49.0
+offset_top = 41.0
+offset_right = -51.0
+offset_bottom = -119.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 50
+theme_override_constants/separation = 20
+alignment = 1
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 1
-anchors_preset = 13
-anchor_left = 0.5
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -136.0
-offset_top = 30.0
-offset_right = 136.0
-offset_bottom = -267.0
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 20.0
+offset_bottom = 46.0
 grow_horizontal = 2
-grow_vertical = 2
 text = "Choose Upgrades"
 horizontal_alignment = 1
-metadata/_edit_use_anchors_ = true
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 custom_minimum_size = Vector2(560, 40)
@@ -64,9 +60,9 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -280.0
-offset_top = -48.0
+offset_top = -60.0
 offset_right = 280.0
-offset_bottom = -8.0
+offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 0
 
@@ -90,4 +86,3 @@ text = "Fight!"
 [node name="BGM" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_music")
 autoplay = true
-bus = &"Music"

@@ -93,7 +93,7 @@ func start_selecting_single_ally() -> void:
 	allyIndex = 0
 
 func select_all_allies_and_finish() -> void:
-	parent.items.remove_at(itemIndex)
+
 	for battler: Battler in get_tree().get_nodes_in_group("allies"):
 		parent.targetBattlers.append(battler)
 	isSelecting = false
@@ -114,7 +114,7 @@ func cancel_action() -> void:
 func finish_selecting():
 	for label: Label in parent.options_container.get_children():
 		if label: label.queue_free()
-	parent.items.remove_at(itemIndex)
+
 	parent.targetBattlers.append(get_tree().get_nodes_in_group("allies")[allyIndex])
 	isSelecting = false
 	currentSelectionType = NOT_SELECTING

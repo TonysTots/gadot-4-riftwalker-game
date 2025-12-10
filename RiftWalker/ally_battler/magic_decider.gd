@@ -6,11 +6,18 @@ var currentGroup: String
 var actionIndex: int:
 	set(value):
 		if value < 0 or value >= parent.magicActions.size(): return
-		var labelToUnfocus: Label = parent.options_container.get_child(actionIndex)
-		labelToUnfocus.modulate.a = 0.5
+		
+		# Safe access to old label
+		if actionIndex < parent.options_container.get_child_count():
+			var labelToUnfocus: Label = parent.options_container.get_child(actionIndex)
+			if labelToUnfocus: labelToUnfocus.modulate.a = 0.5
+			
 		actionIndex = value
-		var labelToFocus: Label = parent.options_container.get_child(actionIndex)
-		labelToFocus.modulate.a = 1
+		
+		# Safe access to new label
+		if actionIndex < parent.options_container.get_child_count():
+			var labelToFocus: Label = parent.options_container.get_child(actionIndex)
+			if labelToFocus: labelToFocus.modulate.a = 1
 var battlerIndex: int:
 	set(value):
 		if value < 0 or value >= get_tree().get_nodes_in_group(currentGroup).size(): return
@@ -123,7 +130,7 @@ func start_selecting_single_battler() -> void:
 	battlerIndex = 0
 
 func select_all_battlers_and_finish() -> void:
-	parent.magicPoints -= parent.magicActions[actionIndex].magicPointsCost
+
 	for battler: Battler in get_tree().get_nodes_in_group(currentGroup):
 		parent.targetBattlers.append(battler)
 	isSelecting = false
@@ -134,7 +141,7 @@ func select_all_battlers_and_finish() -> void:
 	parent.deciding_finished.emit()
 
 func finish_selecting() -> void:
-	parent.magicPoints -= parent.magicActions[actionIndex].magicPointsCost
+
 	parent.targetBattlers.append(get_tree().get_nodes_in_group(currentGroup)[battlerIndex])
 	isSelecting = false
 	currentSelectionType = NOT_SELECTING

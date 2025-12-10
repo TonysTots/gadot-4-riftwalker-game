@@ -1,7 +1,7 @@
 [gd_scene load_steps=2 format=3 uid="uid://mapscrn001"]
 
 [ext_resource type="Script" path="res://UI/map_screen.gd" id="1_script"]
-[ext_resource type="AudioStream" uid="uid://dm5n8k1l2x3j" path="res://assets/music/tile_map.mp3" id="2_music"]
+[ext_resource type="AudioStream" uid="uid://cd8t5iqmrowpb" path="res://assets/music/tile_map.mp3" id="2_music"]
 
 [node name="MapScreen" type="Control"]
 layout_mode = 3
