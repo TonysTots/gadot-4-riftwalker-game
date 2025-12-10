@@ -146,7 +146,8 @@ func save_game() -> void:
 		"lifetime_coins": lifetime_coins,
 		"current_username": current_username,
 		"allies_data": allies_data,
-		"run_in_progress": run_in_progress # New
+		"run_in_progress": run_in_progress,
+		"map_dict": map_data.to_dict() if map_data else {} # Save Map Data
 	}
 	
 	file.store_string(JSON.stringify(data))
@@ -180,8 +181,14 @@ func load_game() -> void:
 		if data.has("party_points"):
 			party_points = data["party_points"]
 			
-		lifetime_coins = data.get("lifetime_coins", 0)
-		device_id = data.get("device_id", "")
+		if data.has("lifetime_coins"):
+			lifetime_coins = data["lifetime_coins"]
+		
+		# Protect Device ID: Only update if save has a valid one
+		var loaded_id = data.get("device_id", "")
+		if loaded_id != "":
+			device_id = loaded_id
+			
 		current_username = data.get("current_username", "")
 		map_base_difficulty = data.get("map_base_difficulty", 1)
 		run_in_progress = data.get("run_in_progress", false)
@@ -189,6 +196,10 @@ func load_game() -> void:
 		# Load Allies Data
 		if data.has("allies_data"):
 			_restore_allies(data["allies_data"])
+			
+		# Load Map Data
+		if data.has("map_dict") and not data["map_dict"].is_empty():
+			map_data = MapData.from_dict(data["map_dict"])
 
 func _restore_allies(allies_data: Dictionary) -> void:
 	Global.pending_allies_data = allies_data

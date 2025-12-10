@@ -13,3 +13,30 @@ class_name MapData extends Resource
 ## Helper to retrieve a node safely by grid position.
 func get_node(grid_pos: Vector2) -> MapNode:
 	return nodes.get(grid_pos) as MapNode
+
+func to_dict() -> Dictionary:
+	var nodes_data: Array = []
+	for key in nodes:
+		var node: MapNode = nodes[key]
+		if node:
+			nodes_data.append(node.to_dict())
+			
+	return {
+		"current_x": current_node_grid_pos.x,
+		"current_y": current_node_grid_pos.y,
+		"max_reached": max_reached_layer,
+		"nodes_data": nodes_data
+	}
+
+static func from_dict(data: Dictionary) -> MapData:
+	var map = MapData.new()
+	map.current_node_grid_pos = Vector2(data.get("current_x", -1), data.get("current_y", -1))
+	map.max_reached_layer = int(data.get("max_reached", 0))
+	
+	map.nodes = {}
+	var list = data.get("nodes_data", [])
+	for node_dict in list:
+		var node = MapNode.from_dict(node_dict)
+		map.nodes[node.grid_position] = node
+		
+	return map

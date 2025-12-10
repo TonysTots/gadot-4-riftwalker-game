@@ -42,6 +42,7 @@ func _on_leaderboard_received(data: Array) -> void:
 		var round_reached = int(entry.get("highest_round", 0))
 		
 		label.text = str(rank) + ". " + username + " - Round " + str(round_reached)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		# Add some style if needed
 		container.add_child(label)
 		rank += 1

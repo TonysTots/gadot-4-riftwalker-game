@@ -56,7 +56,7 @@ func _ready() -> void:
 	
 	# Check for Resume
 	if Global.run_in_progress:
-		start_game_button.text = "Continue Run"
+		start_game_button.text = "Continue"
 	else:
 		start_game_button.text = "Start Game"
 	
@@ -128,7 +128,12 @@ func _create_battle_list() -> void:
 		index = 0
 
 func _handle_auto_login() -> void:
-	if Global.current_username != "":
+	if Global.access_token != "" and Global.current_username != "":
+		# Already logged in
+		login_button.text = "Profile: " + Global.current_username
+		login_button.disabled = false
+	elif Global.current_username != "":
+		# Known user, but need session
 		login_button.text = "Logging in..."
 		AuthManager.login(Global.current_username)
 
@@ -181,11 +186,8 @@ func _on_start_game_button_pressed() -> void:
 		ScreenFade.fade_into_black()
 		await get_tree().create_timer(0.5).timeout
 		
-		# Resume directly to map or upgrade
-		if Global.upgrade_points_pending > 0:
-			get_tree().change_scene_to_file(UPGRADE_MENU_SCENE)
-		else:
-			get_tree().change_scene_to_file(MAP_SCREEN_SCENE)
+		# Resume directly to map (Skip Upgrade Menu exploit)
+		get_tree().change_scene_to_file(MAP_SCREEN_SCENE)
 		return
 
 	# NEW GAME LOGIC

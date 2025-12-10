@@ -18,7 +18,10 @@ func _ready() -> void:
 				%DeviceIdContainer.visible = toggled
 				if toggled:
 					# Populate with current ID if opening
-					%DeviceIdInput.text = Global.device_id
+					var current_id = Global.device_id
+					if current_id == "":
+						current_id = OS.get_unique_id()
+					%DeviceIdInput.text = current_id
 		)
 	
 	# --- NEW: Pre-fill username if known ---
@@ -34,11 +37,30 @@ func _ready() -> void:
 	# -------------------------
 	
 	visibility_changed.connect(_on_visibility_changed)
+	email_input.text_changed.connect(_on_email_text_changed)
+
+func _on_email_text_changed(new_text: String) -> void:
+	# If text changed, allow trying to connect (switching accounts or fixing typo)
+	login_button.disabled = false
+	status_label.text = ""
+	status_label.modulate = Color.WHITE
+	
+	# Optional: If typed back to current user, could re-show status, but better to keep simple.
 
 func _on_visibility_changed() -> void:
 	if visible:
-		login_button.disabled = false
-		status_label.text = ""
+		# Check if already logged in
+		var is_logged_in: bool = Global.access_token != "" and Global.current_username != ""
+		login_button.disabled = is_logged_in
+		
+		if is_logged_in:
+			status_label.text = "Already logged in as " + Global.current_username
+			status_label.modulate = Color.GREEN
+		else:
+			status_label.text = ""
+			status_label.modulate = Color.WHITE
+			login_button.disabled = false
+			
 		if Global.current_username != "":
 			email_input.text = Global.current_username
 
@@ -76,6 +98,7 @@ func _on_login_pressed() -> void:
 			# We should save this change immediately so it persists
 			Global.save_game() 
 	
+	AuthManager.logout() # Ensure clean slate (Clear local tokens)
 	AuthManager.login(email)
 
 func _on_back_pressed() -> void:

@@ -22,11 +22,10 @@ const SECRET_SALT: String = "RIFTWALKER_SECRET_SALT_2025"
 
 # --- NODES ---
 ## HTTPRequest node used for login and general API calls.
-@onready var http_request: HTTPRequest = HTTPRequest.new()
+var http_request: HTTPRequest
 
 func _ready() -> void:
-	add_child(http_request)
-	http_request.request_completed.connect(_on_request_completed)
+	_create_http_request()
 
 # --- AUTHENTICATION ---
 
@@ -35,6 +34,10 @@ func login(username: String) -> void:
 	http_request.cancel_request()
 	
 	print("[AuthManager] Logging in: %s (Device: %s)" % [username, Global.device_id])
+	
+	if Global.device_id == "":
+		login_failed.emit("Internal Error: Device ID is missing. Restart game.")
+		return
 	
 	var body: String = JSON.stringify({
 		"Username": username, 
@@ -46,6 +49,28 @@ func login(username: String) -> void:
 	
 	if error != OK:
 		login_failed.emit("Connection Error: Could not send request (Error %s)" % error)
+
+## Clears local session data and resets network client to clear cookies.
+func logout() -> void:
+	Global.access_token = ""
+	Global.user_id = ""
+	print("[AuthManager] Local session cleared. Resetting HTTP Client...")
+	
+	# Recreate HTTPRequest to clear internal cookies/state
+	if http_request:
+		http_request.queue_free()
+		host_request_cleanup() # Helper to ensure clean state
+	
+	_create_http_request()
+
+func host_request_cleanup() -> void:
+	# Disconnect specific signals if needed, though queue_free handles most
+	pass
+
+func _create_http_request() -> void:
+	http_request = HTTPRequest.new()
+	add_child(http_request)
+	http_request.request_completed.connect(_on_request_completed)
 
 ## Handles the endpoint response for Login actions.
 func _on_request_completed(_result: int, response_code: int, _headers: PackedStringArray, body_bytes: PackedByteArray) -> void:
@@ -64,15 +89,28 @@ func _on_request_completed(_result: int, response_code: int, _headers: PackedStr
 				# Auto-Sync: Download latest save from cloud
 				download_save(Global.SAVE_PATH)
 			
+			# Debug: Print keys to verify server response format
+			print("[AuthManager] Login Response Keys: ", response_dict.keys())
+			
 			if response_dict.has("username"):
 				Global.current_username = str(response_dict["username"])
-				Global.save_game()
+			elif response_dict.has("Username"):
+				Global.current_username = str(response_dict["Username"])
+				
+			if response_dict.has("user_id"):
+				Global.user_id = str(response_dict["user_id"])
+				# Auto-Sync: Download latest save from cloud, but KEEP the new username
+				download_save(Global.SAVE_PATH, Global.current_username)
+			
+			Global.save_game() # Save immediately to persist username/ID
 			
 			login_success.emit(response_dict)
 		else:
 			login_success.emit({}) 
 	else:
-		login_failed.emit("Login Failed. HTTP Code: %d" % response_code)
+		var error_body = body_bytes.get_string_from_utf8()
+		print("[AuthManager] Login Error Body: ", error_body)
+		login_failed.emit("Login Failed. Code: %d\n%s" % [response_code, error_body])
 
 # --- ANTI-CHEAT & LEADERBOARDS ---
 
@@ -179,7 +217,7 @@ func upload_save(file_path: String) -> void:
 	req.request_raw(API_URL + "/save/upload", headers, HTTPClient.METHOD_POST, body)
 
 ## Downloads the save file from the cloud and overwrites the local copy.
-func download_save(target_path: String) -> void:
+func download_save(target_path: String, preserve_username: String = "") -> void:
 	if Global.user_id == "": return
 	
 	var req = HTTPRequest.new()
@@ -192,6 +230,11 @@ func download_save(target_path: String) -> void:
 			
 			print("[AuthManager] Cloud Save Downloaded. Reloading globals...")
 			Global.load_game() 
+			
+			# FIX: Restore the new username if we just renamed ourselves
+			if preserve_username != "":
+				Global.current_username = preserve_username
+				Global.save_game() # Persist the correction
 		else:
 			print("[AuthManager] No Cloud Save found (Code %d)." % response_code)
 		req.queue_free()
