@@ -44,7 +44,10 @@ func login(username: String) -> void:
 		"DeviceId": Global.device_id
 	})
 	
-	var headers: PackedStringArray = ["Content-Type: application/json"]
+	var headers: PackedStringArray = [
+		"Content-Type: application/json",
+		"X-Device-Id: " + Global.device_id
+	]
 	var error: Error = http_request.request(API_URL + "/login", headers, HTTPClient.METHOD_POST, body)
 	
 	if error != OK:
@@ -132,13 +135,15 @@ func upload_run_data(round_reached: int, total_coins: int, character_name: Strin
 		"user_id": Global.user_id,
 		"highest_round": completed_round,
 		"total_coins": total_coins,
-		"character_class": character_name
+		"character_class": character_name,
+		"run_timestamp": int(Time.get_unix_time_from_system())
 	}
 	
 	var body: String = JSON.stringify(data)
 	var headers: PackedStringArray = [
 		"Content-Type: application/json",
-		"X-Integrity-Hash: " + hashed_string
+		"X-Integrity-Hash: " + hashed_string,
+		"X-Device-Id: " + Global.device_id
 	]
 	
 	# Use ephemeral request to avoid blocking login flow
@@ -201,7 +206,8 @@ func upload_save(file_path: String) -> void:
 	body.append_array(("--" + boundary + "--\r\n").to_utf8_buffer())
 	
 	var headers: PackedStringArray = [
-		"Content-Type: multipart/form-data; boundary=" + boundary
+		"Content-Type: multipart/form-data; boundary=" + boundary,
+		"X-Device-Id: " + Global.device_id
 	]
 	
 	var req = HTTPRequest.new()

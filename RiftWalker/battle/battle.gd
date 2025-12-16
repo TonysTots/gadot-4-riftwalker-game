@@ -23,7 +23,7 @@ const SETTINGS_SCENE: PackedScene = preload("res://UI/settings_menu.tscn")
 var settings_instance: CanvasLayer = null
 var battle_ended: bool = false
 
-# --- JUICE ---
+# --- UI ---
 var shake_strength: float = 0.0
 var shake_decay: float = 5.0
 var camera: Camera2D
